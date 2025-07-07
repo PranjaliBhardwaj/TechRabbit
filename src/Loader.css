@@ -1,0 +1,51 @@
+/* Make sure the loader always fills the entire viewport */
+#loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  z-index: 9999; /* On top of everything */
+}
+
+/* Grass container centered */
+.grass-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20%;
+  height: 40px;
+  overflow: hidden;
+}
+
+/* Moving grass */
+.grass {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 400%;
+  height: 100%;
+  background: url('/grass.png') repeat-x;
+  background-size: auto 80%;
+  animation: moveGrass 4s linear infinite;
+}
+
+@keyframes moveGrass {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Rabbit sprite centered above grass */
+.rabbit {
+  position: absolute;
+  left: 50%;
+  top: calc(50% - 40px - 122px + 70px);
+  transform: translateX(-50%);
+  width: 150px;
+  height: 100px;
+  background: url('/sprite.png') no-repeat;
+  background-size: initial;
+}
+ 
