@@ -13,7 +13,7 @@ const CoursePage = () => {
       {/* Main Content */}
       <main className="px-40 py-5 flex flex-1 justify-center">
         <div className="flex flex-col max-w-[960px] w-full">
-          {/* Breadcrumb */}
+          {}
           <div className="flex gap-2 p-4 text-[#a393c8]">
             <a href="#" className="text-base font-medium">Courses</a>
             <span className="text-base font-medium">/</span>
