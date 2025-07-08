@@ -1,5 +1,6 @@
-import React from "react";
 import "../../tailwind.css";
+import React from "react";
+import Header from "./Header";
 
 const FreelancingPage = () => {
   return (
@@ -8,27 +9,7 @@ const FreelancingPage = () => {
       style={{ fontFamily: '"Space Grotesk", "Noto Sans", sans-serif' }}
     >
       <div className="flex h-full grow flex-col">
-        <header className="flex items-center justify-between border-b border-[#243047] px-10 py-3">
-          <div className="flex items-center gap-4 text-white">
-            <img src="/logo.png" alt="Logo" className="w-6 h-6" />
-            <h2 className="text-lg font-bold tracking-[-0.015em]">&nbsp;</h2>
-          </div>
-          <div className="flex flex-1 justify-end gap-8">
-            <nav className="flex items-center gap-9 text-sm font-medium text-white">
-              <a href="/" className="hover:text-accent transition-colors">Home</a>
-              <a href="/chatbot" className="hover:text-accent transition-colors">ChatBot</a>
-              <a href="/women-corner" className="hover:text-accent transition-colors">Women Corner</a>
-              <a href="/courses-hub" className="hover:text-accent transition-colors">Courses</a>
-            </nav>
-            <button className="min-w-[84px] h-10 px-4 bg-[#195de5] text-white font-bold rounded-lg text-sm">
-              Get Started
-            </button>
-            <div
-              className="bg-center bg-no-repeat bg-cover rounded-full size-10"
-              style={{ backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuDkLMTRnA57CMYrIRbIkOYcGma37fy7NAycaiP_Vp98LZoCDXEVXwZTCJi3pkJOyKXJu0e4jvjGJ2NXfXJDsdRGBRxHUIjNGspHSQxZFKK0vczjJH9s9soIpEQbkmoclAqqXXvTHkFxtN_rWzEDNrDRYp608oAHQBDdnpEmjt6hDni4NHsf2ZUWmDzx-kUEve-qwiixzlD4rBQ3c_pLtxauuFVUqsBcY4V1PYrG3ptupCT812fuzCq6UX--0Qu6peu4TmPLP0tIcxwp')` }}
-            ></div>
-          </div>
-        </header>
+        <Header />
 
         <main className="px-40 flex flex-1 justify-center py-5">
           <div className="flex flex-col max-w-[960px] w-full">

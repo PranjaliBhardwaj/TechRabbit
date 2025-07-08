@@ -8,6 +8,8 @@ import Loader from "./components/Loader"; // ✅ Import your Loader component
 import Explore from "./components/Explore";
 import Women_Corner from "./components/Women_Corner";
 import Course_Hub from "./components/Course_Hub";
+import Chat from "./components/Chat";
+import Header from "./components/Header";
 import "./App.css";
 
 function Landing() {
@@ -95,11 +97,13 @@ function Landing() {
 function App() {
   return (
     <BrowserRouter>
+      <Header />
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/explore" element={<Explore />} />
         <Route path="/women-corner" element={<Women_Corner />} />
         <Route path="/courses-hub" element={<Course_Hub />} />
+        <Route path="/chat" element={<Chat />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,5 +1,6 @@
-import React from "react";
 import "../../tailwind.css";
+import React from "react";
+import Header from "./Header";
 
 const WomenCornerPage = () => {
   const sections = [
@@ -41,42 +42,7 @@ const WomenCornerPage = () => {
 
   return (
     <div className="min-h-screen bg-[#1f141b] text-white font-['Space_Grotesk','Noto_Sans',sans-serif]">
-      <header className="flex justify-between items-center border-b border-[#402b39] px-10 py-3">
-        <div className="flex items-center gap-8">
-          <div className="flex items-center gap-4">
-            <img src="/logo.png" alt="Logo" className="w-6 h-6" />
-          </div>
-          <nav className="flex items-center gap-9 text-sm font-medium">
-            <a href="/" className="hover:text-pink-400 transition-colors">Home</a>
-            <a href="/chatbot" className="hover:text-pink-400 transition-colors">ChatBot</a>
-            <a href="/women-corner" className="hover:text-pink-400 transition-colors">Women Corner</a>
-            <a href="/courses-hub" className="hover:text-pink-400 transition-colors">Courses</a>
-          </nav>
-        </div>
-        <div className="flex items-center gap-8">
-          <label className="min-w-40 h-10 max-w-64">
-            <div className="flex items-center rounded-xl bg-[#402b39]">
-              <div className="pl-4 text-[#be9db3]">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256">
-                  <path d="M229.66,218.34l-50.07-50.06a88.11...Z" />
-                </svg>
-              </div>
-              <input
-                type="text"
-                placeholder="Search"
-                className="w-full px-4 py-2 text-white bg-[#402b39] placeholder-[#be9db3] rounded-r-xl focus:outline-none"
-              />
-            </div>
-          </label>
-          <div
-            className="w-10 h-10 rounded-full bg-center bg-cover"
-            style={{
-              backgroundImage:
-                "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBrAQ8LR-x1F4LgeeS1AF82Z85PUi3CaGU5fx5lxCcPpWosNss9IAr2BBHidj4M9L_v2U_xUw3gwwD-sNi9Gtu9ZZdIwRgC4Hx8xBsnn3jYtifxUFtrQg1UJCj7bY6wubwjkxkELoeE2tnYz2wXMAFOs873DhOkH1-iA2zPVXFl0UC60cPZdhPD2grYLzIBwvgDpmw8V5cUYabtPPZmDYzQkXw8fJYfBfBW0EaFKWspP61838l8E4Tk44a3MmjcmXCRj2dBsVdApQLC')",
-            }}
-          ></div>
-        </div>
-      </header>
+      <Header />
       <main className="px-40 py-5">
         <div className="max-w-[960px] mx-auto">
           <div className="p-4">
