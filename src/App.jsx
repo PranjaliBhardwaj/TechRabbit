@@ -4,7 +4,7 @@ import TypewriterSection from "./components/TypewriterSection";
 import Section from "./components/Section";
 import CursorTrail from "./components/CursorTrail";
 import sectionsData from "./data/sectionsData";
-import Loader from "./components/Loader"; // ✅ Import your Loader component
+import Loader from "./components/Loader";
 import Explore from "./components/Explore";
 import Women_Corner from "./components/Women_Corner";
 import Course_Hub from "./components/Course_Hub";
@@ -13,7 +13,7 @@ import "./App.css";
 function Landing() {
   const colors = ["#000", "#f5f5dc", "#add8e6", "#ffb6c1", "#90ee90", "#ffe4b5"];
   const [bgColor, setBgColor] = useState(colors[0]);
-  const [loading, setLoading] = useState(true); // ✅ Add loader state
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
