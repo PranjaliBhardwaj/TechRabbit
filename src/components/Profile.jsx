@@ -1,5 +1,6 @@
 import "../../tailwind.css";
 import React from "react";
+import Header from "./Header";
 
 const ProfilePage = () => {
   return (
@@ -24,7 +25,7 @@ const ProfilePage = () => {
                     { icon: "House", label: "Home" },
                     { icon: "Video", label: "Courses" },
                     { icon: "Bookmark", label: "Resources" },
-                    { icon: "Users", label: "ChatBot" },
+                    { icon: "Users", label: "Chat", href: "/chat" },
                     { icon: "User", label: "Profile", active: true },
                   ].map(({ label, active }, idx) => (
                     <div

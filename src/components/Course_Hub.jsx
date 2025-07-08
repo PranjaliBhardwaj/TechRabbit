@@ -1,5 +1,6 @@
-import React from "react";
 import "../../tailwind.css";
+import React from "react";
+import Header from "./Header";
 
 const CourseHub = () => {
   const courses = [
@@ -29,41 +30,12 @@ const CourseHub = () => {
 
   return (
     <div
-      className="relative flex min-h-screen flex-col bg-primary overflow-x-hidden font-space-grotesk"
+      className="relative flex min-h-screen flex-col bg-primary overflow-x-hidden font-space-grotesk bg-[#161122]"
       style={{
         "--checkbox-tick-svg": `url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='rgb(23,20,31)' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e")`
       }}
     >
-      {/* Header */}
-      <header className="flex items-center justify-between border-b border-primary-light px-10 py-3">
-        <div className="flex items-center gap-8">
-          <div className="size-8">
-            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
-          </div>
-          <nav className="flex items-center gap-9 text-sm font-medium text-white">
-            <a href="/" className="hover:text-accent transition-colors">Home</a>
-            <a href="/chatbot" className="hover:text-accent transition-colors">ChatBot</a>
-            <a href="/women-corner" className="hover:text-accent transition-colors">Women Corner</a>
-            <a href="/courses-hub" className="hover:text-accent transition-colors">Courses</a>
-          </nav>
-        </div>
-        <div className="flex flex-1 justify-end gap-8">
-          <label className="flex min-w-40 max-w-64">
-            <div className="flex w-full rounded-xl bg-primary-light items-center focus-within:ring-2 focus-within:ring-accent transition-all">
-              <div className="text-accent-light pl-4">
-                🔍
-              </div>
-              <input
-                placeholder="Search"
-                className="w-full text-white px-4 py-2 bg-primary-light focus:outline-none placeholder-accent-light"
-              />
-            </div>
-          </label>
-          <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center hover:bg-accent/90 transition-colors cursor-pointer">
-            👤
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Main */}
       <main className="flex flex-1 py-5 px-6">
@@ -89,7 +61,7 @@ const CourseHub = () => {
           <div className="flex justify-between flex-wrap gap-3">
             <div className="min-w-72">
               <p className="text-white text-[32px] font-bold">Courses</p>
-              <p className="text-accent-light text-sm">Explore our courses and resources to enhance your technical skills.</p>
+              <p className="text-accent-light text-white text-sm">Explore our courses and resources to enhance your technical skills.</p>
             </div>
           </div>
 
@@ -111,7 +83,7 @@ const CourseHub = () => {
                 ></div>
                 <div>
                   <p className="text-white font-medium group-hover:text-accent transition-colors">{course.title}</p>
-                  <p className="text-accent-light text-sm">{course.desc}</p>
+                  <p className="text-accent-light text-white text-sm">{course.desc}</p>
                 </div>
               </div>
             ))}
