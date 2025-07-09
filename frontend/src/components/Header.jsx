@@ -1,9 +1,11 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 const Header = () => {
-  const navigate = useNavigate();
-  const profileImg = `${window.location.origin}/default_bunny.jpg`;
+  const location = useLocation();
+  // Use a pink hover color for Women's Corner, blue for others
+  const hoverClass = location.pathname === "/women-corner" ? "hover:text-pink-400" : "hover:text-blue-400";
+
   return (
     <header className="flex items-center justify-between border-b border-[#2b3240] px-10 py-3">
       <div className="flex items-center gap-8">
@@ -13,10 +15,10 @@ const Header = () => {
           </a>
         </div>
         <nav className="flex items-center gap-9 text-sm font-medium text-white">
-          <a href="/explore" className="hover:text-accent transition-colors">Home</a>
-          <a href="/chat" className="hover:text-accent transition-colors">Chat</a>
-          <a href="/women-corner" className="hover:text-accent transition-colors">Women Corner</a>
-          <a href="/courses-hub" className="hover:text-accent transition-colors">Courses</a>
+          <a href="/explore" className={`${hoverClass} transition-colors`}>Home</a>
+          <a href="/women-corner" className={`${hoverClass} transition-colors`}>Women Corner</a>
+          <a href="/courses-hub" className={`${hoverClass} transition-colors`}>Courses</a>
+          <a href="/freelancing" className={`${hoverClass} transition-colors`}>Get Project</a>
         </nav>
       </div>
       <div className="flex flex-1 justify-end gap-8">
@@ -35,11 +37,11 @@ const Header = () => {
           🔔
         </button>
         <div
-          className="bg-center bg-no-repeat bg-cover rounded-full size-10 cursor-pointer"
+          className="bg-center bg-no-repeat bg-cover rounded-full size-10"
           style={{
-            backgroundImage: `url('${profileImg}')`,
+            backgroundImage:
+              'url("https://lh3.googleusercontent.com/aida-public/AB6AXuCBeTObt_P5ZmjLH5FpIwr3ScKVKuOc31pULLVk4SHYnkcQy5TQALOtWdWwHC6DOwIUR9_BbW9rjlA8ERrhpT5pdKtmeFEMhDi402EQTwAyUha5cv3R-06gZF43xyhJi34mJpmVGeB03Thrr_qlRTiE4N15JAadISGizd00HVanoKtFjg5Hhq64uLsTqVliboI-Ao43KwX5endKuZRvD4XwEzMNGUMMgD0_7fCZvW7i8BuG5ly1n_2tR7rJ3joFCU_CUpQ-utSiW6KA")',
           }}
-          onClick={() => navigate("/profile")}
         ></div>
       </div>
     </header>

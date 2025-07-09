@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import TypewriterSection from "./components/TypewriterSection";
 import Section from "./components/Section";
 import CursorTrail from "./components/CursorTrail";
@@ -10,6 +10,7 @@ import Women_Corner from "./components/Women_Corner";
 import Course_Hub from "./components/Course_Hub";
 import Chat from "./components/Chat";
 import Profile from "./components/Profile";
+import Freelancing_Page from "./components/Freelancing_Page";
 import "./App.css";
 
 function Landing() {
@@ -94,9 +95,42 @@ function Landing() {
   );
 }
 
+// BotIcon component
+function BotIcon() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  // Hide on landing and chat pages
+  if (location.pathname === "/" || location.pathname === "/chat") return null;
+  return (
+    <button
+      onClick={() => navigate("/chat")}
+      style={{
+        position: "fixed",
+        bottom: 24,
+        right: 24,
+        zIndex: 1000,
+        background: "#c1b2e5",
+        border: "none",
+        borderRadius: "50%",
+        width: 56,
+        height: 56,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        cursor: "pointer",
+      }}
+      aria-label="Open Chatbot"
+    >
+      <span style={{ fontSize: 28 }}>🤖</span>
+    </button>
+  );
+}
+
 function App() {
   return (
     <BrowserRouter>
+      <BotIcon />
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/explore" element={<Explore />} />
@@ -104,6 +138,7 @@ function App() {
         <Route path="/courses-hub" element={<Course_Hub />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/freelancing" element={<Freelancing_Page />} />
       </Routes>
     </BrowserRouter>
   );
