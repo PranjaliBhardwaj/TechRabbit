@@ -4,10 +4,12 @@ const Header = () => (
   <header className="flex items-center justify-between border-b border-[#2b3240] px-10 py-3">
     <div className="flex items-center gap-8">
       <div className="flex items-center gap-4 text-white">
-        <img src="/logo.png" alt="Logo" className="w-6 h-6" />
+        <a href="/">
+          <img src="/logo.png" alt="Logo" className="w-32 h-8 cursor-pointer" />
+        </a>
       </div>
       <nav className="flex items-center gap-9 text-sm font-medium text-white">
-        <a href="/" className="hover:text-accent transition-colors">Home</a>
+        <a href="/explore" className="hover:text-accent transition-colors">Home</a>
         <a href="/chat" className="hover:text-accent transition-colors">Chat</a>
         <a href="/women-corner" className="hover:text-accent transition-colors">Women Corner</a>
         <a href="/courses-hub" className="hover:text-accent transition-colors">Courses</a>
