@@ -9,7 +9,7 @@ import Explore from "./components/Explore";
 import Women_Corner from "./components/Women_Corner";
 import Course_Hub from "./components/Course_Hub";
 import Chat from "./components/Chat";
-import Profile from "./components/Profile";
+import ProfilePage from "./components/Profile";
 import Freelancing_Page from "./components/Freelancing_Page";
 import "./App.css";
 
@@ -137,7 +137,7 @@ function App() {
         <Route path="/women-corner" element={<Women_Corner />} />
         <Route path="/courses-hub" element={<Course_Hub />} />
         <Route path="/chat" element={<Chat />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/profile" element={<ProfilePage />} />
         <Route path="/freelancing" element={<Freelancing_Page />} />
       </Routes>
     </BrowserRouter>
