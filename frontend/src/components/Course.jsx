@@ -13,14 +13,14 @@ const CoursePage = () => {
       {/* Main Content */}
       <main className="px-40 py-5 flex flex-1 justify-center">
         <div className="flex flex-col max-w-[960px] w-full">
-          {}
+          {/* Breadcrumb */}
           <div className="flex gap-2 p-4 text-[#a393c8]">
             <a href="#" className="text-base font-medium">Courses</a>
             <span className="text-base font-medium">/</span>
             <span className="text-white text-base font-medium">Advanced Python</span>
           </div>
 
-          {/* Course Header */}
+          {/*Course Header */}
           <div className="flex justify-between gap-3 p-4">
             <div className="flex flex-col gap-3 min-w-72">
               <p className="text-white text-[32px] font-bold">Advanced Python Programming</p>
