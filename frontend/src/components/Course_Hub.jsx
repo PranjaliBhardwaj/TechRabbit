@@ -26,7 +26,7 @@ const CourseHub = () => {
     }
   ];
 
-  const filters = ["Paid", "Unpaid", "Beginner", "Expert", "One-shot", "Detailed"];
+  const filters = ["Paid", "Unpaid", "One-shot", "Detailed"];
 
   return (
     <div
@@ -59,30 +59,22 @@ const CourseHub = () => {
         {/* Course Cards */}
         <section className="flex-1 pl-6">
           <div className="flex justify-between flex-wrap gap-3">
-            <div className="min-w-72">
-              <p className="text-white text-[32px] font-bold">Courses</p>
-              <p className="text-accent-light text-white text-sm">Explore our courses and resources to enhance your technical skills.</p>
+            <div className="min-w-36">
+              <p className="text-white text-[16px] font-bold">Courses</p>
+              <p className="text-accent-light text-white text-xs">Explore our courses and resources to enhance your technical skills.</p>
             </div>
           </div>
+          <br />
 
-          <div className="flex gap-3 py-3 flex-wrap">
-            <span className="rounded-full bg-primary-light px-4 py-1 text-white text-sm hover:bg-primary-dark cursor-pointer">
-              Beginner-friendly
-            </span>
-            <span className="rounded-full bg-primary-light px-4 py-1 text-white text-sm hover:bg-primary-dark cursor-pointer">
-              Paid
-            </span>
-          </div>
-
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-6">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(140px,0.5fr))] gap-3">
             {courses.map((course, i) => (
-              <div key={i} className="flex flex-col gap-3 pb-3 group cursor-pointer">
+              <div key={i} className="flex flex-col gap-1.5 pb-1.5 group cursor-pointer text-xs relative">
                 <div
-                  className="w-full aspect-square bg-cover bg-center rounded-xl group-hover:scale-105 transition-transform duration-300 shadow-lg"
+                  className="w-full aspect-square bg-cover bg-center rounded-lg group-hover:scale-105 transition-transform duration-300 shadow"
                   style={{ backgroundImage: `url(${course.img})` }}
                 ></div>
                 <div>
-                  <p className="text-white font-medium group-hover:text-accent transition-colors">{course.title}</p>
+                  <p className="text-white font-bold text-lg group-hover:text-accent transition-colors">{course.title}</p>
                   <p className="text-accent-light text-white text-sm">{course.desc}</p>
                 </div>
               </div>

@@ -9,6 +9,7 @@ import Explore from "./components/Explore";
 import Women_Corner from "./components/Women_Corner";
 import Course_Hub from "./components/Course_Hub";
 import Chat from "./components/Chat";
+import Profile from "./components/Profile";
 import "./App.css";
 
 function Landing() {
@@ -102,6 +103,7 @@ function App() {
         <Route path="/women-corner" element={<Women_Corner />} />
         <Route path="/courses-hub" element={<Course_Hub />} />
         <Route path="/chat" element={<Chat />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </BrowserRouter>
   );
