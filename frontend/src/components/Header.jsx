@@ -36,13 +36,13 @@ const Header = () => {
         <button className="flex items-center justify-center h-10 px-2.5 gap-2 text-sm font-bold text-white bg-[#2b3240] rounded-xl">
           🔔
         </button>
-        <div
-          className="bg-center bg-no-repeat bg-cover rounded-full size-10"
-          style={{
-            backgroundImage:
-              'url("https://lh3.googleusercontent.com/aida-public/AB6AXuCBeTObt_P5ZmjLH5FpIwr3ScKVKuOc31pULLVk4SHYnkcQy5TQALOtWdWwHC6DOwIUR9_BbW9rjlA8ERrhpT5pdKtmeFEMhDi402EQTwAyUha5cv3R-06gZF43xyhJi34mJpmVGeB03Thrr_qlRTiE4N15JAadISGizd00HVanoKtFjg5Hhq64uLsTqVliboI-Ao43KwX5endKuZRvD4XwEzMNGUMMgD0_7fCZvW7i8BuG5ly1n_2tR7rJ3joFCU_CUpQ-utSiW6KA")',
-          }}
-        ></div>
+        <a href="/profile" className="rounded-full size-10 overflow-hidden border-2 border-[#c1b2e5] hover:border-blue-400 transition-colors">
+          <img
+            src="/default_bunny.jpg"
+            alt="Profile"
+            className="w-full h-full object-cover"
+          />
+        </a>
       </div>
     </header>
   );
