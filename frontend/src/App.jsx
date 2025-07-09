@@ -11,6 +11,7 @@ import Course_Hub from "./components/Course_Hub";
 import Chat from "./components/Chat";
 import ProfilePage from "./components/Profile";
 import Freelancing_Page from "./components/Freelancing_Page";
+import AdminDashboard from './components/AdminDashboard';
 import "./App.css";
 
 function Landing() {
@@ -139,6 +140,7 @@ function App() {
         <Route path="/chat" element={<Chat />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/freelancing" element={<Freelancing_Page />} />
+        <Route path="/admin" element={<AdminDashboard />} />
       </Routes>
     </BrowserRouter>
   );
