@@ -18,9 +18,32 @@ function Landing() {
   const colors = ["#000", "#f5f5dc", "#add8e6", "#ffb6c1", "#90ee90", "#ffe4b5"];
   const [bgColor, setBgColor] = useState(colors[0]);
   const [loading, setLoading] = useState(true);
+  const [sectionsInView, setSectionsInView] = useState(new Set());
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Intersection Observer for section animations
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const sectionIndex = parseInt(entry.target.dataset.sectionIndex);
+            setSectionsInView(prev => new Set([...prev, sectionIndex]));
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    // Observe sections after a delay to ensure they're rendered
+    setTimeout(() => {
+      const sections = document.querySelectorAll('.section');
+      sections.forEach((section, index) => {
+        section.dataset.sectionIndex = index;
+        observer.observe(section);
+      });
+    }, 100);
+
     const handleScroll = () => {
       const sections = document.querySelectorAll(".section, .typewriter-section");
       const scrollPosition = window.scrollY + window.innerHeight / 2;
@@ -38,11 +61,13 @@ function Landing() {
     };
 
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      observer.disconnect();
+    };
   }, []);
 
   useEffect(() => {
-    // ✅ Show loader for 2 seconds
     const timer = setTimeout(() => {
       setLoading(false);
     }, 2000);
@@ -50,7 +75,6 @@ function Landing() {
     return () => clearTimeout(timer);
   }, []);
 
-  // ✅ If loading, render only Loader
   if (loading) {
     return <Loader />;
   }
@@ -60,22 +84,22 @@ function Landing() {
       className="App"
       style={{
         backgroundColor: bgColor,
-        transition: "background-color 0.8s ease"
+        transition: "background-color 0.8s cubic-bezier(0.4, 0, 0.2, 1)"
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem 0 1rem 0' }}>
+      <div 
+        className="animate-fade-in-up" 
+        style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          padding: '2rem 0 1rem 0',
+          animationDelay: '2.2s',
+          opacity: 0,
+          animation: 'fadeInUp 0.8s ease-out 2.2s forwards'
+        }}
+      >
         <button
-          style={{
-            background: '#c1b2e5',
-            color: '#17141f',
-            fontWeight: 'bold',
-            fontSize: '1.1rem',
-            border: 'none',
-            borderRadius: '999px',
-            padding: '0.75rem 2.5rem',
-            cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.07)'
-          }}
+          className="enhanced-button"
           onClick={() => navigate('/explore')}
         >
           Get Started
@@ -90,6 +114,7 @@ function Landing() {
           description={section.description}
           image={section.image}
           darkText={index >= 0}
+          isInView={sectionsInView.has(index)}
         />
       ))}
     </div>
@@ -105,25 +130,10 @@ function BotIcon() {
   return (
     <button
       onClick={() => navigate("/chat")}
-      style={{
-        position: "fixed",
-        bottom: 24,
-        right: 24,
-        zIndex: 1000,
-        background: "#c1b2e5",
-        border: "none",
-        borderRadius: "50%",
-        width: 56,
-        height: 56,
-        boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        cursor: "pointer",
-      }}
+      className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-[#c1b2e5] to-[#a393c8] border-none rounded-full w-14 h-14 shadow-lg hover:shadow-xl flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-110 hover:shadow-purple-400/25 group"
       aria-label="Open Chatbot"
     >
-      <span style={{ fontSize: 28 }}>🤖</span>
+      <span className="text-2xl group-hover:scale-110 transition-transform duration-300">🤖</span>
     </button>
   );
 }
