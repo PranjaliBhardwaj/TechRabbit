@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "start-frontend": "cd frontend && npm run dev"
+    "start-frontend": "cd frontend && npm run dev",
+    "dev": "cd frontend && npm run dev"
   },
   "dependencies": {
     "cors": "^2.8.5",
