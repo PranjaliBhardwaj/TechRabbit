@@ -19,6 +19,8 @@ const Header = () => {
           <a href="/women-corner" className={`${hoverClass} transition-colors`}>Women Corner</a>
           <a href="/courses-hub" className={`${hoverClass} transition-colors`}>Courses</a>
           <a href="/freelancing" className={`${hoverClass} transition-colors`}>Get Project</a>
+          <a href="/showcase" className={`${hoverClass} transition-colors`}>Showcase</a>
+          <a href="/admin/nested-cards" className={`${hoverClass} transition-colors`}>Admin</a>
         </nav>
       </div>
       <div className="flex flex-1 justify-end gap-8">

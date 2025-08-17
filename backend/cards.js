@@ -10,8 +10,21 @@ const router = express.Router();
 const cardSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
-  section: { type: String, enum: ['scholarship', 'internship', 'mentorship'], required: true },
+  section: { type: String, enum: ['scholarship', 'internship', 'mentorship', 'course', 'opensource', 'extracurricular'], required: true },
   image: { type: String },
+  parentCardId: { type: mongoose.Schema.Types.ObjectId, ref: 'Card' }, // For nested cards
+  isNested: { type: Boolean, default: false }, // Flag to identify nested cards
+  nestedData: {
+    videoUrl: String,
+    duration: String,
+    level: String,
+    price: String,
+    enrollmentUrl: String,
+    curriculum: [String],
+    instructor: String,
+    rating: Number,
+    reviews: Number
+  }
 }, { timestamps: true });
 
 const Card = mongoose.model('Card', cardSchema);
@@ -40,6 +53,20 @@ router.get('/', async (req, res) => {
     res.json(cards);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch cards' });
+  }
+});
+
+// GET /cards/:id - Get a specific card by ID
+router.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const card = await Card.findById(id);
+    if (!card) {
+      return res.status(404).json({ error: 'Card not found' });
+    }
+    res.json(card);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch card' });
   }
 });
 
@@ -103,6 +130,104 @@ router.delete('/:id', async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: 'Failed to delete card' });
+  }
+});
+
+// GET /cards/:id/nested - Get nested cards for a specific card
+router.get('/:id/nested', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const nestedCards = await Card.find({ parentCardId: id, isNested: true }).sort({ createdAt: -1 });
+    res.json(nestedCards);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch nested cards' });
+  }
+});
+
+// POST /cards/:id/nested - Create a nested card
+router.post('/:id/nested', upload.single('image'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, description, nestedData } = req.body;
+    
+    if (!title || !description) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Verify parent card exists
+    const parentCard = await Card.findById(id);
+    if (!parentCard) {
+      return res.status(404).json({ error: 'Parent card not found' });
+    }
+
+    const nestedCard = new Card({
+      title,
+      description,
+      section: parentCard.section, // Inherit section from parent
+      image: req.file ? req.file.filename : null,
+      parentCardId: id,
+      isNested: true,
+      nestedData: nestedData ? JSON.parse(nestedData) : {}
+    });
+
+    await nestedCard.save();
+    res.status(201).json(nestedCard);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to create nested card' });
+  }
+});
+
+// PUT /cards/:id/nested/:nestedId - Update a nested card
+router.put('/:id/nested/:nestedId', upload.single('image'), async (req, res) => {
+  try {
+    const { id, nestedId } = req.params;
+    const { title, description, nestedData } = req.body;
+    
+    const nestedCard = await Card.findOne({ _id: nestedId, parentCardId: id, isNested: true });
+    if (!nestedCard) {
+      return res.status(404).json({ error: 'Nested card not found' });
+    }
+
+    if (req.file) {
+      // Delete old image if exists
+      if (nestedCard.image) {
+        const oldPath = path.join(UPLOADS_DIR, nestedCard.image);
+        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+      }
+      nestedCard.image = req.file.filename;
+    }
+
+    if (title) nestedCard.title = title;
+    if (description) nestedCard.description = description;
+    if (nestedData) nestedCard.nestedData = JSON.parse(nestedData);
+
+    await nestedCard.save();
+    res.json(nestedCard);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update nested card' });
+  }
+});
+
+// DELETE /cards/:id/nested/:nestedId - Delete a nested card
+router.delete('/:id/nested/:nestedId', async (req, res) => {
+  try {
+    const { id, nestedId } = req.params;
+    
+    const nestedCard = await Card.findOne({ _id: nestedId, parentCardId: id, isNested: true });
+    if (!nestedCard) {
+      return res.status(500).json({ error: 'Nested card not found' });
+    }
+
+    // Delete image if exists
+    if (nestedCard.image) {
+      const imgPath = path.join(UPLOADS_DIR, nestedCard.image);
+      if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
+    }
+
+    await Card.deleteOne({ _id: nestedId });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete nested card' });
   }
 });
 

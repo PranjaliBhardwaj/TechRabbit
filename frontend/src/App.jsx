@@ -6,12 +6,19 @@ import CursorTrail from "./components/CursorTrail";
 import sectionsData from "./data/sectionsData";
 import Loader from "./components/Loader";
 import Explore from "./components/Explore";
+import CardDetail from "./components/CardDetail";
+import CardShowcase from "./components/CardShowcase";
+import CourseDetail from "./components/CourseDetail";
+import AdminNestedCards from "./components/AdminNestedCards";
 import Women_Corner from "./components/Women_Corner";
 import Course_Hub from "./components/Course_Hub";
 import Chat from "./components/Chat";
 import ProfilePage from "./components/Profile";
 import Freelancing_Page from "./components/Freelancing_Page";
 import AdminDashboard from './components/AdminDashboard';
+import CourseAdminDashboard from './components/CourseAdminDashboard';
+import ExploreAdminDashboard from './components/ExploreAdminDashboard';
+import Course from "./components/Course";
 import "./App.css";
 
 function Landing() {
@@ -135,12 +142,19 @@ function App() {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/explore" element={<Explore />} />
+        <Route path="/explore/:id" element={<CardDetail />} />
+        <Route path="/course/:parentId/:nestedId" element={<CourseDetail />} />
+        <Route path="/admin/nested-cards" element={<AdminNestedCards />} />
+        <Route path="/showcase" element={<CardShowcase />} />
         <Route path="/women-corner" element={<Women_Corner />} />
         <Route path="/courses-hub" element={<Course_Hub />} />
+        <Route path="/course" element={<Course />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/freelancing" element={<Freelancing_Page />} />
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/course-admin" element={<CourseAdminDashboard />} />
+        <Route path="/explore-admin" element={<ExploreAdminDashboard />} />
       </Routes>
     </BrowserRouter>
   );

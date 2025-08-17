@@ -5,7 +5,13 @@ const cors = require('cors');
 const path = require('path');
 const cardsRouter = require('./cards');
 const mongoose = require('mongoose');
+const nodemailer = require('nodemailer');
 require('dotenv').config();
+console.log('Environment variables loaded:', {
+  SMTP_HOST: process.env.SMTP_HOST,
+  SMTP_USER: process.env.SMTP_USER,
+  NODE_ENV: process.env.NODE_ENV
+});
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -21,7 +27,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/cards', cardsRouter);
 
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/techrabbit';
-mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(MONGO_URI)
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB connection error:', err));
 
@@ -48,6 +54,48 @@ app.post('/api/chat', async (req, res) => {
     res.json({ reply: response.data.choices[0].message.content });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+// Email endpoint for freelancing contact form
+app.post('/api/contact', async (req, res) => {
+  try {
+    const { name, email, details } = req.body;
+
+    if (!name || !email || !details) {
+      return res.status(400).json({ error: 'Missing required fields: name, email, details' });
+    }
+
+    // Debug: Log environment variables
+    console.log('SMTP_HOST:', process.env.SMTP_HOST);
+    console.log('SMTP_PORT:', process.env.SMTP_PORT);
+    console.log('SMTP_USER:', process.env.SMTP_USER);
+    console.log('SMTP_PASS exists:', !!process.env.SMTP_PASS);
+
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT || '587', 10),
+      secure: (process.env.SMTP_SECURE || 'false') === 'true',
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    });
+
+    const toEmail = process.env.CONTACT_TO_EMAIL || "techrabbit14@gmail.com";
+
+    await transporter.sendMail({
+      from: `TechRabbit Contact <${process.env.SMTP_USER}>`,
+      to: toEmail,
+      replyTo: email,
+      subject: `New Freelancing Inquiry from ${name}`,
+      text: `Name: ${name}\nEmail: ${email}\n\nDetails:\n${details}`,
+    });
+
+    return res.json({ ok: true });
+  } catch (error) {
+    console.error('Email send error:', error);
+    return res.status(500).json({ error: 'Failed to send email' });
   }
 });
 
