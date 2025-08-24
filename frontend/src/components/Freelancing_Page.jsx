@@ -1,5 +1,5 @@
 import "../../tailwind.css";
-import React from "react";
+import React, { useState } from "react";
 import Header from "./Header";
 
 const FreelancingPage = () => {
@@ -31,20 +31,91 @@ const FreelancingPage = () => {
             ))}
 
             <h2 className="text-white text-[22px] font-bold tracking-[-0.015em] px-4 pt-5 pb-3">Contact Us</h2>
-            <div className="flex max-w-[480px] flex-wrap gap-4 px-4 py-3">
-              <input className="form-input h-14 rounded-lg bg-[#243047] p-4 text-white placeholder-[#93a5c8] w-full" placeholder="Your Name" />
-              <input className="form-input h-14 rounded-lg bg-[#243047] p-4 text-white placeholder-[#93a5c8] w-full" placeholder="Your Email" />
-              <textarea className="form-input min-h-36 rounded-lg bg-[#243047] p-4 text-white placeholder-[#93a5c8] w-full" placeholder="Your Project Details"></textarea>
-            </div>
-            <div className="flex px-4 py-3 justify-end">
-              <button className="h-10 px-4 bg-[#195de5] text-white text-sm font-bold rounded-lg">
-                Submit
-              </button>
-            </div>
+            <ContactForm />
           </div>
         </main>
       </div>
     </div>
+  );
+};
+
+const ContactForm = () => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [details, setDetails] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [status, setStatus] = useState(null);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus(null);
+
+    if (!name || !email || !details) {
+      setStatus({ type: "error", message: "Please fill in all fields." });
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /[^@\s]+@[^@\s]+\.[^@\s]+/;
+    if (!emailRegex.test(email)) {
+      setStatus({ type: "error", message: "Please enter a valid email." });
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      const response = await fetch(`${import.meta.env.VITE_API_BASE || "http://localhost:5000"}/api/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, details }),
+      });
+      if (!response.ok) throw new Error("Failed to submit");
+      setStatus({ type: "success", message: "Thanks! Your message has been sent." });
+      setName("");
+      setEmail("");
+      setDetails("");
+    } catch (err) {
+      setStatus({ type: "error", message: "Something went wrong. Please try again." });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="max-w-[640px] px-4 py-3">
+      <div className="flex flex-col gap-4">
+        <input
+          className="form-input h-14 rounded-lg bg-[#243047] p-4 text-white placeholder-[#93a5c8] w-full"
+          placeholder="Your Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <input
+          className="form-input h-14 rounded-lg bg-[#243047] p-4 text-white placeholder-[#93a5c8] w-full"
+          placeholder="Your Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <textarea
+          className="form-input min-h-36 rounded-lg bg-[#243047] p-4 text-white placeholder-[#93a5c8] w-full"
+          placeholder="Your Project Details"
+          value={details}
+          onChange={(e) => setDetails(e.target.value)}
+        />
+      </div>
+      <div className="flex items-center gap-3 px-0 py-3 justify-between">
+        {status && (
+          <p className={status.type === "success" ? "text-green-400" : "text-red-400"}>{status.message}</p>
+        )}
+        <button
+          type="submit"
+          disabled={submitting}
+          className="h-10 px-4 bg-[#195de5] text-white text-sm font-bold rounded-lg disabled:opacity-60"
+        >
+          {submitting ? "Sending..." : "Submit"}
+        </button>
+      </div>
+    </form>
   );
 };
 
