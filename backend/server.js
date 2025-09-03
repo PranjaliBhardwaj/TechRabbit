@@ -2,6 +2,10 @@
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
+const authRouter = require('./auth');
+const userRouter = require('./user');
 const path = require('path');
 const cardsRouter = require('./cards');
 const mongoose = require('mongoose');
@@ -10,26 +14,58 @@ require('dotenv').config();
 console.log('Environment variables loaded:', {
   SMTP_HOST: process.env.SMTP_HOST,
   SMTP_USER: process.env.SMTP_USER,
-  NODE_ENV: process.env.NODE_ENV
+  NODE_ENV: process.env.NODE_ENV,
+  ADMIN_TOKEN_SET: !!process.env.ADMIN_TOKEN
 });
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+// CORS with credentials for frontend origin
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || 'http://localhost:5173';
+app.use(cors({ origin: FRONTEND_ORIGIN, credentials: true }));
+app.use(cookieParser());
+app.use(session({
+  name: 'trsid',
+  secret: process.env.SESSION_SECRET || 'change-this-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: (process.env.NODE_ENV === 'production')
+  }
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve uploaded images
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Auth API
+app.use('/auth', authRouter);
+app.use('/user', userRouter);
+
 // Cards API
 app.use('/cards', cardsRouter);
 
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/techrabbit';
+console.log('Attempting to connect to MongoDB at:', MONGO_URI);
+
 mongoose.connect(MONGO_URI)
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
+.then(() => {
+  console.log('✅ MongoDB connected successfully!');
+  console.log('Database:', mongoose.connection.name);
+})
+.catch(err => {
+  console.error('❌ MongoDB connection error:', err.message);
+  console.log('\nTroubleshooting steps:');
+  console.log('1. Make sure MongoDB is installed and running');
+  console.log('2. Check if MongoDB service is started');
+  console.log('3. Verify the connection string in your .env file');
+  console.log('4. If using MongoDB Atlas, make sure the connection string is correct');
+  process.exit(1);
+});
 
 app.post('/api/chat', async (req, res) => {
   const { message, history } = req.body;

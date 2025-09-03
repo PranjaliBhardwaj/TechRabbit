@@ -17,8 +17,8 @@ const NestedCard = ({
   const [loading, setLoading] = useState(false);
 
   const handleCardClick = () => {
-    // Navigate to the Course.jsx template with nested card data
-    navigate(`/course/${parentCardId}/${card._id}`);
+    // Navigate to the nested card detail page
+    navigate(`/nested-card/${parentCardId}/${card._id}`);
   };
 
   const handleEdit = () => {

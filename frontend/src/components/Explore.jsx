@@ -1,33 +1,80 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../../tailwind.css";
 import Header from "./Header";
 import ContentGrid from "./ContentGrid";
+import { useSearch } from "../contexts/SearchContext";
+import { filterCardsBySearch } from "../utils/searchUtils";
 
 const API_URL = "http://localhost:5000";
 
 const Explore = () => {
   const [cards, setCards] = useState([]);
+  const [courseCards, setCourseCards] = useState([]);
+  const [categoryNestedMap, setCategoryNestedMap] = useState({});
+  const [nestedLoading, setNestedLoading] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const { searchQuery } = useSearch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCards = async () => {
       setLoading(true);
       try {
-        // Fetch all cards and filter for explore sections
+        // Fetch all cards and filter for category cards (explore sections)
         const res = await fetch(`${API_URL}/cards`);
         const data = await res.json();
-        // Filter cards that belong to explore sections
-        const exploreCards = data.filter(card => 
-          ['scholarship', 'internship', 'course', 'opensource', 'extracurricular'].includes(card.section)
+        // Filter for category cards (cards with section 'category' that are not nested)
+        const categoryCards = data.filter(card => 
+          card.section === 'category' && !card.isNested
         );
-        setCards(exploreCards);
+        setCards(categoryCards);
+        
+        // Fetch nested cards for each category
+        setNestedLoading(true);
+        const entries = await Promise.all(
+          categoryCards.map(async (category) => {
+            try {
+              const nestedRes = await fetch(`${API_URL}/cards/${category._id}/nested`);
+              const nestedData = await nestedRes.json();
+              return [category._id, nestedData];
+            } catch (e) {
+              return [category._id, []];
+            }
+          })
+        );
+        setCategoryNestedMap(Object.fromEntries(entries));
+        setNestedLoading(false);
+        
+        // Filter for course cards
+        const courses = data.filter(card => card.section === 'course');
+        setCourseCards(courses);
       } catch (err) {
         setCards([]);
+        setCourseCards([]);
+        setCategoryNestedMap({});
+        setNestedLoading(false);
       }
       setLoading(false);
     };
     fetchCards();
   }, []);
+
+  const handleCategoryClick = (category) => {
+    if (selectedCategory && selectedCategory._id === category._id) {
+      // If clicking the same category, deselect it
+      setSelectedCategory(null);
+    } else {
+      // Select the clicked category
+      setSelectedCategory(category);
+    }
+  };
+
+  const handleNestedCardClick = (nestedCard) => {
+    // Navigate to the nested card detail page
+    navigate(`/nested-card/${selectedCategory._id}/${nestedCard._id}`);
+  };
 
   return (
     <div
@@ -52,26 +99,83 @@ const Explore = () => {
             <div className="w-20 h-1 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full mt-2 animate-pulse"></div>
           </div>
 
-          <h2 className="text-white text-[22px] font-bold px-4 pb-3 pt-5">Opportunities</h2>
+          {/* Back button when a category is selected */}
+          {selectedCategory && (
+            <div className="px-4 mb-4">
+              <button
+                onClick={() => setSelectedCategory(null)}
+                className="flex items-center gap-2 text-[#c1b2e5] hover:text-white transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Back to All Categories
+              </button>
+            </div>
+          )}
 
           {loading ? (
             <div className="text-center text-lg py-10 text-white">Loading...</div>
+          ) : selectedCategory ? (
+            // Show selected category's nested cards
+            <div>
+              <div className="px-4 mb-6">
+                <h2 className="text-white text-[28px] font-bold mb-2">{selectedCategory.title}</h2>
+                <p className="text-[#9da8be] text-lg">{selectedCategory.description}</p>
+              </div>
+              
+              {nestedLoading ? (
+                <div className="text-center text-lg py-10 text-white">Loading nested cards...</div>
+              ) : (
+                                 <ContentGrid
+                   cards={filterCardsBySearch(categoryNestedMap[selectedCategory._id] || [], searchQuery)}
+                   variant="default"
+                   columns={4}
+                   gap={3}
+                   className="p-4"
+                   emptyMessage={searchQuery ? `No results found for "${searchQuery}" in ${selectedCategory.title}.` : `No items available in ${selectedCategory.title} yet.`}
+                   showActions={false}
+                   showBadge={true}
+                   onCardClick={handleNestedCardClick}
+                   parentCategory={selectedCategory}
+                 />
+              )}
+            </div>
           ) : (
-            <ContentGrid 
-              cards={cards} 
-              variant="default"
-              columns={4} 
-              gap={3} 
-              className="p-4"
-              emptyMessage="No opportunities available yet."
-              showActions={false}
-              showBadge={true}
-            />
+            // Show all categories
+            <>
+              <h2 className="text-white text-[22px] font-bold px-4 pb-3 pt-5">Categories</h2>
+              <ContentGrid 
+                cards={filterCardsBySearch(cards, searchQuery)} 
+                variant="default"
+                columns={4} 
+                gap={3} 
+                className="p-4"
+                emptyMessage={searchQuery ? `No results found for "${searchQuery}"` : "No categories available yet."}
+                showActions={false}
+                showBadge={true}
+                onCardClick={handleCategoryClick}
+                isSelected={selectedCategory?._id}
+              />
+              
+              {/* Courses Section */}
+              <h2 className="text-white text-[22px] font-bold px-4 pb-3 pt-8">Courses</h2>
+              <ContentGrid 
+                cards={filterCardsBySearch(courseCards, searchQuery)} 
+                variant="default"
+                columns={4} 
+                gap={3} 
+                className="p-4"
+                emptyMessage={searchQuery ? `No courses found for "${searchQuery}"` : "No courses available yet."}
+                showActions={false}
+                showBadge={true}
+              />
+            </>
           )}
         </div>
       </main>
 
-      <style jsx>{`
+      <style>{`
         .card-reveal {
           opacity: 0;
           transform: translateY(30px);
