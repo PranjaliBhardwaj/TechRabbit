@@ -10,7 +10,9 @@ const ContentGrid = ({
   onCardClick,
   emptyMessage = "No content available.",
   showActions = true,
-  showBadge = true
+  showBadge = true,
+  isSelected = null,
+  parentCategory = null
 }) => {
   if (!cards || cards.length === 0) {
     return (
@@ -72,6 +74,8 @@ const ContentGrid = ({
                 onClick={onCardClick}
                 showActions={showActions}
                 showBadge={showBadge}
+                isSelected={isSelected === card._id}
+                parentCategory={parentCategory}
               />
             </div>
           ))}
@@ -90,6 +94,8 @@ const ContentGrid = ({
                 onClick={onCardClick}
                 showActions={showActions}
                 showBadge={showBadge}
+                isSelected={isSelected === card._id}
+                parentCategory={parentCategory}
               />
             </div>
           ))}
@@ -109,6 +115,8 @@ const ContentGrid = ({
           onClick={onCardClick}
           showActions={showActions}
           showBadge={showBadge}
+          isSelected={isSelected === card._id}
+          parentCategory={parentCategory}
         />
       ))}
     </div>

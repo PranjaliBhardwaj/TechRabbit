@@ -20,7 +20,9 @@ const NestedCardForm = ({
       curriculum: [''],
       instructor: '',
       rating: 0,
-      reviews: 0
+      reviews: 0,
+      courseDescription: '',
+      courseType: 'Detailed'
     }
   });
 
@@ -41,7 +43,9 @@ const NestedCardForm = ({
           curriculum: editCard.nestedData?.curriculum || [''],
           instructor: editCard.nestedData?.instructor || '',
           rating: editCard.nestedData?.rating || 0,
-          reviews: editCard.nestedData?.reviews || 0
+          reviews: editCard.nestedData?.reviews || 0,
+          courseDescription: editCard.nestedData?.courseDescription || '',
+          courseType: editCard.nestedData?.courseType || 'Detailed'
         }
       });
     }
@@ -63,6 +67,12 @@ const NestedCardForm = ({
         [field]: value
       }));
     }
+  };
+
+  const handleNumberChange = (field, value) => {
+    // Handle number fields properly to avoid NaN
+    const numValue = value === '' ? 0 : parseFloat(value) || 0;
+    handleInputChange(field, numValue);
   };
 
   const handleCurriculumChange = (index, value) => {
@@ -108,6 +118,7 @@ const NestedCardForm = ({
       const formDataToSend = new FormData();
       formDataToSend.append('title', formData.title);
       formDataToSend.append('description', formData.description);
+      formDataToSend.append('section', 'course'); // Add section for course creation
       formDataToSend.append('nestedData', JSON.stringify(formData.nestedData));
       
       if (formData.image) {
@@ -182,6 +193,25 @@ const NestedCardForm = ({
             </div>
           </div>
 
+          {/* Course Description */}
+          <div className="space-y-4">
+            <h3 className="text-white text-lg font-semibold">Course Description</h3>
+            
+            <div>
+              <label className="block text-[#9da8be] text-sm font-medium mb-2">
+                Detailed Course Description *
+              </label>
+              <textarea
+                value={formData.nestedData.courseDescription}
+                onChange={(e) => handleInputChange('nestedData.courseDescription', e.target.value)}
+                rows={6}
+                className="w-full px-3 py-2 bg-[#2b3240] border border-[#3a4151] rounded-lg text-white focus:outline-none focus:border-[#c1b2e5]"
+                placeholder="Provide a detailed description of the course, including what students will learn, prerequisites, outcomes, and any other relevant information..."
+                required
+              />
+            </div>
+          </div>
+
           {/* Course Details */}
           <div className="space-y-4">
             <h3 className="text-white text-lg font-semibold">Course Details</h3>
@@ -225,6 +255,20 @@ const NestedCardForm = ({
                   <option value="Beginner">Beginner</option>
                   <option value="Intermediate">Intermediate</option>
                   <option value="Advanced">Advanced</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[#9da8be] text-sm font-medium mb-2">
+                  Course Type
+                </label>
+                <select
+                  value={formData.nestedData.courseType}
+                  onChange={(e) => handleInputChange('nestedData.courseType', e.target.value)}
+                  className="w-full px-3 py-2 bg-[#2b3240] border border-[#3a4151] rounded-lg text-white focus:outline-none focus:border-[#c1b2e5]"
+                >
+                  <option value="One-shot">One-shot</option>
+                  <option value="Detailed">Detailed</option>
                 </select>
               </div>
 
@@ -278,8 +322,8 @@ const NestedCardForm = ({
                   min="0"
                   max="5"
                   step="0.1"
-                  value={formData.nestedData.rating}
-                  onChange={(e) => handleInputChange('nestedData.rating', parseFloat(e.target.value))}
+                  value={formData.nestedData.rating || 0}
+                  onChange={(e) => handleNumberChange('nestedData.rating', e.target.value)}
                   className="w-full px-3 py-2 bg-[#2b3240] border border-[#3a4151] rounded-lg text-white focus:outline-none focus:border-[#c1b2e5]"
                 />
               </div>
@@ -291,8 +335,8 @@ const NestedCardForm = ({
                 <input
                   type="number"
                   min="0"
-                  value={formData.nestedData.reviews}
-                  onChange={(e) => handleInputChange('nestedData.reviews', parseInt(e.target.value))}
+                  value={formData.nestedData.reviews || 0}
+                  onChange={(e) => handleNumberChange('nestedData.reviews', e.target.value)}
                   className="w-full px-3 py-2 bg-[#2b3240] border border-[#3a4151] rounded-lg text-white focus:outline-none focus:border-[#c1b2e5]"
                 />
               </div>
