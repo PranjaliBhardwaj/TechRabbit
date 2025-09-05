@@ -29,6 +29,17 @@
   transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   z-index: 2;
+  transform: translateY(var(--parallaxContent, 0px));
+}
+
+/* glass card styling */
+.section-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+  padding: 2.5rem;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.25);
 }
 
 .section-content.animate-in {
@@ -76,16 +87,42 @@
   justify-content: center;
   padding: 2rem;
   position: relative;
+  transform: translateY(var(--parallaxImage, 0px));
 }
 
 .section-image.animate-in {
   animation: slideInRight 1s ease-out 0.2s forwards;
 }
 
-.section-image img {
-  max-width: 80%;
-  height: auto;
+/* framed image with gradient border */
+.image-frame {
+  position: relative;
+  padding: 10px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(193,178,229,0.6), rgba(163,147,200,0.2));
+  width: min(520px, 90%);
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+.image-frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
   border-radius: 20px;
+  padding: 2px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.05));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+}
+
+.image-frame img {
+  display: block;
+  max-width: 520px;
+  width: 80%;
+  height: auto;
+  border-radius: 14px;
   box-shadow: 
     0 20px 40px rgba(0, 0, 0, 0.15),
     0 10px 20px rgba(0, 0, 0, 0.1);
@@ -94,7 +131,7 @@
   z-index: 2;
 }
 
-.section-image img:hover {
+.image-frame:not(.image-handoff) img:hover {
   transform: scale(1.05) rotateY(5deg);
   box-shadow: 
     0 30px 60px rgba(0, 0, 0, 0.2),
@@ -113,6 +150,64 @@
   transform: translate(-50%, -50%);
   z-index: 1;
   animation: pulse 3s ease-in-out infinite;
+}
+
+/* Handoff stack: current above next; slide current down, next in from top */
+.image-handoff {
+  overflow: hidden;
+}
+
+.image-handoff .image-current,
+.image-handoff .image-next {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  will-change: transform;
+  transition: transform 0.2s linear;
+}
+
+/* Single handoff mapping */
+.image-handoff .image-current {
+  transform: translateY(var(--handoffCurrentY, 0%));
+}
+.image-handoff .image-next {
+  transform: translateY(var(--handoffNextY, 100%));
+}
+
+.image-handoff .image-current {
+  z-index: 2;
+  transform: translateY(var(--handoffCurrentY, 0%));
+}
+
+.image-handoff .image-next {
+  z-index: 1;
+  transform: translateY(var(--handoffNextY, 100%));
+}
+
+/* decorative blurred blobs per section */
+.section-decor {
+  position: absolute;
+  filter: blur(60px);
+  opacity: 0.5;
+  z-index: 0;
+}
+
+.decor-a {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle at 30% 30%, #c1b2e5, transparent 60%);
+  top: 10%;
+  left: -80px;
+}
+
+.decor-b {
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle at 70% 70%, #a393c8, transparent 60%);
+  bottom: 10%;
+  right: -80px;
 }
 
 @keyframes fadeInUp {
@@ -169,4 +264,9 @@
   .section-content {
     padding: 2rem;
   }
+}
+
+/* Alternate layout: reverse on even sections - handled by parent nth-child */
+.section:nth-child(even) {
+  flex-direction: row-reverse;
 }

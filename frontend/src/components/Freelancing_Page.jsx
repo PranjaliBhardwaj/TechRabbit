@@ -16,7 +16,7 @@ const FreelancingPage = () => {
             <section className="p-4">
               <div className="flex flex-col min-w-72 gap-3">
                 <p className="text-white text-[32px] font-bold leading-tight">Freelancing</p>
-                <p className="text-[#93a5c8] text-sm">Get your project starting from just 1999</p>
+                <p className="text-[#93a5c8] text-sm">Get your project starting from just ₹1999</p>
               </div>
             </section>
 

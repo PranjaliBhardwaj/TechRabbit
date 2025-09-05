@@ -1,34 +1,66 @@
 import "../../tailwind.css";
 import React, { useEffect, useState, useRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import Header from "./Header";
+import { useSearch } from "../contexts/SearchContext";
+import { filterCardsBySearch } from "../utils/searchUtils";
 
 const API_URL = "http://localhost:5000";
 
 const sectionLabels = {
   scholarship: "Scholarships",
   internship: "Internships",
-  mentorship: "Mentorship",
+  mentorship: "Mentorships",
+  competitions: "Competitions",
 };
 
 const WomenCornerPage = () => {
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
   const cardsRef = useRef([]);
+  const { searchQuery } = useSearch();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const fetchCards = async () => {
       setLoading(true);
+      setCards([]); // Reset cards first
       try {
         const res = await fetch(`${API_URL}/cards`);
         const data = await res.json();
         setCards(data);
       } catch (err) {
+        console.error('Error fetching cards:', err);
         setCards([]);
       }
       setLoading(false);
     };
     fetchCards();
-  }, []);
+  }, [location.pathname]); // Re-fetch when location changes
+
+  // Group all cards by section first
+  const allGrouped = cards.reduce((acc, card) => {
+    acc[card.section] = acc[card.section] || [];
+    acc[card.section].push(card);
+    return acc;
+  }, {});
+  
+  // Then filter each section based on search
+  const grouped = {};
+  Object.keys(allGrouped).forEach(section => {
+    const sectionCards = allGrouped[section];
+    if (searchQuery.trim()) {
+      // Only filter if there's a search query
+      const filteredSectionCards = filterCardsBySearch(sectionCards, searchQuery);
+      if (filteredSectionCards.length > 0) {
+        grouped[section] = filteredSectionCards;
+      }
+    } else {
+      // If no search query, show all cards
+      grouped[section] = sectionCards;
+    }
+  });
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -44,19 +76,18 @@ const WomenCornerPage = () => {
       { threshold: 0.1 }
     );
 
-    cardsRef.current.forEach((card) => {
-      if (card) observer.observe(card);
-    });
+    // Clear the refs array before adding new ones
+    cardsRef.current = [];
+    
+    // Observe cards after they're rendered
+    setTimeout(() => {
+      cardsRef.current.forEach((card) => {
+        if (card) observer.observe(card);
+      });
+    }, 100);
 
     return () => observer.disconnect();
-  }, [cards]);
-
-  // Group cards by section
-  const grouped = cards.reduce((acc, card) => {
-    acc[card.section] = acc[card.section] || [];
-    acc[card.section].push(card);
-    return acc;
-  }, {});
+  }, [cards, searchQuery]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1f141b] via-[#2a1a2e] to-[#1f141b] text-white font-['Space_Grotesk','Noto_Sans',sans-serif] page-transition">
@@ -87,7 +118,16 @@ const WomenCornerPage = () => {
               <p className="text-lg mt-4 text-pink-300">Loading amazing opportunities...</p>
             </div>
           ) : (
-            Object.keys(sectionLabels).map((section, sectionIndex) => (
+            <>
+              {searchQuery && (
+                <div className="mb-6 px-4">
+                  <p className="text-pink-300 text-sm">
+                    Search results for: <span className="text-white font-semibold">"{searchQuery}"</span>
+                  </p>
+                </div>
+              )}
+              
+              {Object.keys(sectionLabels).map((section, sectionIndex) => (
               <div key={section} className="mb-8">
                 <h2 
                   className="text-white text-[22px] font-bold px-4 pt-5 pb-3 animate-slide-in-left flex items-center"
@@ -98,17 +138,21 @@ const WomenCornerPage = () => {
                     {section === 'scholarship' && '🎓'}
                     {section === 'internship' && '💼'}
                     {section === 'mentorship' && '🌟'}
+                    {section === 'competitions' && '🏆'}
                   </span>
                 </h2>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
                   {grouped[section]?.length ? (
                     grouped[section].map((item, index) => (
-                      <div 
+                                            <div 
                         key={item._id} 
-                        ref={el => cardsRef.current.push(el)}
-                        className="card-reveal group cursor-pointer"
+                        ref={el => {
+                          if (el) cardsRef.current.push(el);
+                        }}
+                        className="card-reveal animate-in group cursor-pointer"
                         style={{ animationDelay: `${(sectionIndex * 0.3) + (index * 0.1)}s` }}
+                        onClick={() => navigate(`/women-detail/${item._id}`)}
                       >
                         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#2a1a2e] to-[#1f141b] border border-pink-500/20 transition-all duration-500 hover:border-pink-400/40 hover:shadow-2xl hover:shadow-pink-500/20">
                           {/* Gradient overlay */}
@@ -117,7 +161,7 @@ const WomenCornerPage = () => {
                           {/* Image container */}
                           <div className="relative overflow-hidden">
                             <div
-                              className="w-full aspect-square bg-center bg-no-repeat bg-cover transition-transform duration-700 group-hover:scale-110"
+                              className="w-full aspect-square bg-center bg-no-repeat bg-cover"
                               style={{ 
                                 backgroundImage: `url(${item.image ? `${API_URL}/uploads/${item.image}` : 'https://via.placeholder.com/300x300?text=No+Image'})` 
                               }}
@@ -151,20 +195,25 @@ const WomenCornerPage = () => {
                       </div>
                     ))
                   ) : (
-                    <div className="col-span-full text-center py-12">
-                      <div className="text-6xl mb-4 opacity-50">🌸</div>
-                      <p className="text-[#be9db3] text-lg">No opportunities available yet.</p>
-                      <p className="text-[#be9db3] text-sm mt-2">Check back soon for amazing opportunities!</p>
-                    </div>
+                                         <div className="col-span-full text-center py-12">
+                       <div className="text-6xl mb-4 opacity-50">🌸</div>
+                       <p className="text-[#be9db3] text-lg">
+                         {searchQuery ? `No results found for "${searchQuery}"` : "No opportunities available yet."}
+                       </p>
+                       <p className="text-[#be9db3] text-sm mt-2">
+                         {searchQuery ? "Try a different search term." : "Check back soon for amazing opportunities!"}
+                       </p>
+                     </div>
                   )}
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </main>
+                                 </div>
+               </div>
+             ))}
+             </>
+           )}
+         </div>
+       </main>
 
-      <style jsx>{`
+             <style>{`
         .card-reveal {
           opacity: 0;
           transform: translateY(30px);

@@ -17,8 +17,8 @@ const NestedCard = ({
   const [loading, setLoading] = useState(false);
 
   const handleCardClick = () => {
-    // Navigate to the Course.jsx template with nested card data
-    navigate(`/course/${parentCardId}/${card._id}`);
+    // Navigate to the nested card detail page
+    navigate(`/nested-card/${parentCardId}/${card._id}`);
   };
 
   const handleEdit = () => {
@@ -184,7 +184,7 @@ const NestedCard = ({
                 {renderStars(card.nestedData.rating)}
               </div>
               <span className="text-[#9da8be] text-sm">
-                {card.nestedData.rating} ({card.nestedData.reviews || 0} reviews)
+                {card.nestedData.rating === 'N/A' ? 'N/A' : `${card.nestedData.rating}/5`} ({card.nestedData.reviews === 'N/A' ? 'N/A' : (card.nestedData.reviews || 0)} reviews)
               </span>
             </div>
           )}

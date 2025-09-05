@@ -10,7 +10,7 @@ const router = express.Router();
 const cardSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
-  section: { type: String, enum: ['scholarship', 'internship', 'mentorship', 'course', 'opensource', 'extracurricular'], required: true },
+  section: { type: String, enum: ['scholarship', 'internship', 'mentorship', 'course', 'opensource', 'extracurricular', 'category', 'competitions'], required: true },
   image: { type: String },
   parentCardId: { type: mongoose.Schema.Types.ObjectId, ref: 'Card' }, // For nested cards
   isNested: { type: Boolean, default: false }, // Flag to identify nested cards
@@ -18,12 +18,15 @@ const cardSchema = new mongoose.Schema({
     videoUrl: String,
     duration: String,
     level: String,
-    price: String,
+    stipendValue: String, // Changed from price to stipend/value
+    price: String, // New field for price in Indian rupees
     enrollmentUrl: String,
     curriculum: [String],
     instructor: String,
-    rating: Number,
-    reviews: Number
+    rating: String, // Changed to String to support "N/A"
+    reviews: String, // Changed to String to support "N/A"
+    courseDescription: String,
+    courseType: String
   }
 }, { timestamps: true });
 
@@ -44,6 +47,12 @@ const storage = multer.diskStorage({
   }
 });
 const upload = multer({ storage });
+
+// Session-based admin auth
+const authenticateAdmin = (req, res, next) => {
+  if (req.session && req.session.isAdmin) return next();
+  return res.status(401).json({ error: 'Unauthorized' });
+};
 
 // GET /cards?section=scholarship|internship|mentorship
 router.get('/', async (req, res) => {
@@ -71,32 +80,52 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST /cards
-router.post('/', upload.single('image'), async (req, res) => {
+router.post('/', authenticateAdmin, upload.single('image'), async (req, res) => {
   try {
-    const { title, description, section } = req.body;
+    const { title, description, section, nestedData } = req.body;
+    
+    
     if (!title || !description || !section) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      return res.status(400).json({ error: 'Missing required fields: title, description, section' });
     }
-    const card = new Card({
+    
+    const cardData = {
       title,
       description,
       section,
       image: req.file ? req.file.filename : null
-    });
+    };
+    
+    // Handle nestedData if provided
+    if (nestedData) {
+      try {
+        const parsedNestedData = JSON.parse(nestedData);
+        cardData.nestedData = parsedNestedData;
+      } catch (parseError) {
+        console.error('Error parsing nestedData:', parseError);
+        return res.status(400).json({ error: 'Invalid nestedData format' });
+      }
+    }
+    
+    const card = new Card(cardData);
     await card.save();
     res.status(201).json(card);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to create card' });
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ error: `Validation error: ${err.message}` });
+    }
+    res.status(500).json({ error: `Failed to create card: ${err.message}` });
   }
 });
 
 // PUT /cards/:id
-router.put('/:id', upload.single('image'), async (req, res) => {
+router.put('/:id', authenticateAdmin, upload.single('image'), async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, section } = req.body;
+    const { title, description, section, nestedData } = req.body;
     const card = await Card.findById(id);
     if (!card) return res.status(404).json({ error: 'Card not found' });
+    
     if (req.file) {
       // Delete old image if exists
       if (card.image) {
@@ -105,9 +134,22 @@ router.put('/:id', upload.single('image'), async (req, res) => {
       }
       card.image = req.file.filename;
     }
+    
     if (title) card.title = title;
     if (description) card.description = description;
     if (section) card.section = section;
+    
+    // Handle nestedData if provided
+    if (nestedData) {
+      try {
+        const parsedNestedData = JSON.parse(nestedData);
+        card.nestedData = parsedNestedData;
+      } catch (parseError) {
+        console.error('Error parsing nestedData:', parseError);
+        return res.status(400).json({ error: 'Invalid nestedData format' });
+      }
+    }
+    
     await card.save();
     res.json(card);
   } catch (err) {
@@ -116,7 +158,7 @@ router.put('/:id', upload.single('image'), async (req, res) => {
 });
 
 // DELETE /cards/:id
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticateAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const card = await Card.findById(id);
@@ -133,6 +175,22 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// GET /cards/:id/nested/:nestedId - Get a specific nested card (MUST come before the general nested route)
+router.get('/:id/nested/:nestedId', async (req, res) => {
+  try {
+    const { id, nestedId } = req.params;
+    const nestedCard = await Card.findOne({ _id: nestedId, parentCardId: id, isNested: true });
+    
+    if (!nestedCard) {
+      return res.status(404).json({ error: 'Nested card not found' });
+    }
+    
+    res.json(nestedCard);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch nested card' });
+  }
+});
+
 // GET /cards/:id/nested - Get nested cards for a specific card
 router.get('/:id/nested', async (req, res) => {
   try {
@@ -145,20 +203,27 @@ router.get('/:id/nested', async (req, res) => {
 });
 
 // POST /cards/:id/nested - Create a nested card
-router.post('/:id/nested', upload.single('image'), async (req, res) => {
+router.post('/:id/nested', authenticateAdmin, upload.single('image'), async (req, res) => {
   try {
     const { id } = req.params;
     const { title, description, nestedData } = req.body;
     
+    console.log('Creating nested card for parent:', id);
+    console.log('Received data:', { title, description, nestedData });
+    
     if (!title || !description) {
+      console.log('Missing required fields:', { title, description });
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
     // Verify parent card exists
     const parentCard = await Card.findById(id);
     if (!parentCard) {
+      console.log('Parent card not found:', id);
       return res.status(404).json({ error: 'Parent card not found' });
     }
+    
+    console.log('Parent card found:', parentCard.title, parentCard.section);
 
     const nestedCard = new Card({
       title,
@@ -170,15 +235,19 @@ router.post('/:id/nested', upload.single('image'), async (req, res) => {
       nestedData: nestedData ? JSON.parse(nestedData) : {}
     });
 
+    console.log('About to save nested card:', nestedCard);
     await nestedCard.save();
+    console.log('Nested card saved successfully');
     res.status(201).json(nestedCard);
   } catch (err) {
+    console.error('Error creating nested card:', err);
+    console.error('Error details:', err.message);
     res.status(500).json({ error: 'Failed to create nested card' });
   }
 });
 
 // PUT /cards/:id/nested/:nestedId - Update a nested card
-router.put('/:id/nested/:nestedId', upload.single('image'), async (req, res) => {
+router.put('/:id/nested/:nestedId', authenticateAdmin, upload.single('image'), async (req, res) => {
   try {
     const { id, nestedId } = req.params;
     const { title, description, nestedData } = req.body;
@@ -209,7 +278,7 @@ router.put('/:id/nested/:nestedId', upload.single('image'), async (req, res) => 
 });
 
 // DELETE /cards/:id/nested/:nestedId - Delete a nested card
-router.delete('/:id/nested/:nestedId', async (req, res) => {
+router.delete('/:id/nested/:nestedId', authenticateAdmin, async (req, res) => {
   try {
     const { id, nestedId } = req.params;
     

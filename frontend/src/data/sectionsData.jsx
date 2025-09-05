@@ -1,28 +1,28 @@
 const sectionsData = [
   {
-    title: "Welcome to My Page",
-    description: "This is the first section with a beautiful photo.",
-    image: "https://source.unsplash.com/random/800x600?nature"
+    title: "Opportunities Hub",
+    description: "Discover a constantly updated feed of scholarships, internships, mentorships, open source programs, and more. Filter by domain, experience level, and deadlines to find exactly what fits your path.",
+    image: "/user_profile.png"
   },
   {
-    title: "About Me",
-    description: "I am passionate about design and development.",
-    image: "https://source.unsplash.com/random/800x600?tech"
+    title: "All-in-One Opportunities",
+    description: "Find free course links, mentorship programs, internships, and scholarship opportunities — all curated in one place so you don’t have to search the entire web.",
+    image: "/opportunities_hub.png"
   },
   {
-    title: "My Projects",
-    description: "Here are some of my favorite works.",
-    image: "https://source.unsplash.com/random/800x600?workspace"
+    title: "Women Corner",
+    description: "A special page dedicated to girls-only opportunities — curated scholarships, internships, mentorships, and communities to support and uplift women in tech.",
+    image: "/all_in_one.png"
   },
   {
-    title: "My Skills",
-    description: "I have expertise in React, CSS, and more.",
-    image: "https://source.unsplash.com/random/800x600?skills"
+    title: "Get Project",
+    description: "Turn ideas into delivered projects and unlock freelancing opportunities. Clients can request projects through our form, and our team will build them for a transparent fee.",
+    image: "/women_corner.png"
   },
   {
-    title: "Contact Me",
-    description: "Feel free to reach out for collaborations.",
-    image: "https://source.unsplash.com/random/800x600?contact"
+    title: "User Profiles & Preferences",
+    description: "Register or log in to personalize your experience. Update your name and email, upload an avatar, set notification preferences, and manage security from your profile.",
+    image: "/get_project.png"
   }
 ];
 

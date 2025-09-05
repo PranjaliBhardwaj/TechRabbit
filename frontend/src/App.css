@@ -10,6 +10,91 @@ body {
   transition: background-color 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Hero enhancements */
+.glass-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+  padding: 24px 20px 28px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+}
+
+.hero-decor {
+  position: absolute;
+  filter: blur(60px);
+  opacity: 0.6;
+  z-index: 0;
+}
+
+.hero-decor-1 {
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle at 30% 30%, #c1b2e5, transparent 60%);
+  top: -40px;
+  left: -40px;
+}
+
+.hero-decor-2 {
+  width: 360px;
+  height: 360px;
+  background: radial-gradient(circle at 70% 70%, #6b5bd6, transparent 60%);
+  bottom: -60px;
+  right: -60px;
+}
+
+.hero-chip {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+}
+
+.button-ghost {
+  background: transparent;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.55);
+  border-radius: 999px;
+  padding: 12px 22px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.scroll-indicator {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 26px;
+  height: 42px;
+  border: 2px solid rgba(255,255,255,0.7);
+  border-radius: 999px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 6px;
+  opacity: 0.85;
+  cursor: pointer;
+}
+
+.scroll-indicator span {
+  display: block;
+  width: 4px;
+  height: 8px;
+  background: #fff;
+  border-radius: 2px;
+  animation: scrollDot 1.6s ease-in-out infinite;
+}
+
+@keyframes scrollDot {
+  0%   { transform: translateY(0); opacity: 1; }
+  80%  { transform: translateY(16px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 0; }
+}
+
 /* Enhanced scroll animations */
 @keyframes fadeInUp {
   from {
