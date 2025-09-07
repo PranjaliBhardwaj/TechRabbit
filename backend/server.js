@@ -22,9 +22,37 @@ console.log('Environment variables loaded:', {
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// CORS with credentials for frontend origin
+// CORS with credentials for frontend origin(s)
 const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || 'http://localhost:5173';
-app.use(cors({ origin: FRONTEND_ORIGIN, credentials: true }));
+const FRONTEND_ORIGINS = (process.env.FRONTEND_ORIGINS || FRONTEND_ORIGIN)
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean);
+const ALLOW_VERCEL_WILDCARD = (process.env.ALLOW_VERCEL_WILDCARD || 'false') === 'true';
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow same-origin or non-browser requests (no Origin header)
+    if (!origin) return callback(null, true);
+
+    if (FRONTEND_ORIGINS.includes(origin)) return callback(null, true);
+
+    if (ALLOW_VERCEL_WILDCARD) {
+      try {
+        const hostname = new URL(origin).hostname;
+        if (/\.vercel\.app$/.test(hostname)) return callback(null, true);
+      } catch {}
+    }
+
+    return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(cookieParser());
 app.set('trust proxy', 1);
 app.use(session({
@@ -39,7 +67,7 @@ app.use(session({
   }),
   cookie: {
     httpOnly: true,
-    sameSite: 'lax',
+    sameSite: (process.env.COOKIE_SAMESITE || 'lax'),
     secure: (process.env.NODE_ENV === 'production')
   }
 }));
