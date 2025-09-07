@@ -13,6 +13,7 @@ const sectionLabels = {
   course: 'Courses',
   opensource: 'Open Source Programs',
   extracurricular: 'Extracurricular Activities',
+  competitions: 'Competitions',
 };
 
 // Tab-specific section configurations
@@ -32,12 +33,13 @@ const tabConfigurations = {
   },
   'women-corner': {
     title: 'Women Corner',
-    description: 'Manage scholarships, internships, and mentorship content for women',
-    sections: ['scholarship', 'internship', 'mentorship'],
+    description: 'Manage scholarships, internships, mentorship, and competitions content for women',
+    sections: ['scholarship', 'internship', 'mentorship', 'competitions'],
     sectionOptions: [
       { value: 'scholarship', label: 'Scholarship' },
       { value: 'internship', label: 'Internship' },
       { value: 'mentorship', label: 'Mentorship' },
+      { value: 'competitions', label: 'Competitions' },
     ]
   },
   'course-page': {
@@ -71,6 +73,12 @@ const UnifiedAdminDashboard = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [categoryCards, setCategoryCards] = useState([]);
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [categoryFormData, setCategoryFormData] = useState({
+    title: '',
+    description: '',
+    image: null
+  });
   
   // Course creation states
   const [isCreatingCourse, setIsCreatingCourse] = useState(false);
@@ -82,12 +90,13 @@ const UnifiedAdminDashboard = () => {
       videoUrl: '',
       duration: '',
       level: 'Beginner',
+      stipendValue: '',
       price: '',
       enrollmentUrl: '',
       curriculum: [''],
       instructor: '',
-      rating: 0,
-      reviews: 0
+      rating: '',
+      reviews: ''
     }
   });
 
@@ -101,12 +110,13 @@ const UnifiedAdminDashboard = () => {
       videoUrl: '',
       duration: '',
       level: 'Beginner',
+      stipendValue: '',
       price: '',
       enrollmentUrl: '',
       curriculum: [''],
       instructor: '',
-      rating: 0,
-      reviews: 0,
+      rating: '',
+      reviews: '',
       courseDescription: '',
       courseType: 'Detailed'
     }
@@ -204,23 +214,22 @@ const UnifiedAdminDashboard = () => {
       submitData.append('section', formData.section);
       if (formData.image) submitData.append('image', formData.image);
 
-      // Include full nestedData for Women Corner entries
-      if (activeTab === 'women-corner' && ['scholarship', 'internship', 'mentorship'].includes(formData.section)) {
-        const nd = formData.nestedData || {};
-        const nestedDataPayload = {
-          videoUrl: nd.videoUrl || '',
-          duration: nd.duration || '',
-          price: nd.price || '',
-          enrollmentUrl: nd.enrollmentUrl || '',
-          curriculum: Array.isArray(nd.curriculum) ? nd.curriculum : [''],
-          instructor: nd.instructor || '',
-          rating: Number(nd.rating || 0),
-          reviews: Number(nd.reviews || 0),
-          courseDescription: nd.courseDescription || '',
-          
-        };
-        submitData.append('nestedData', JSON.stringify(nestedDataPayload));
-      }
+      // Include nestedData for all sections that support it
+      const nd = formData.nestedData || {};
+      const nestedDataPayload = {
+        videoUrl: nd.videoUrl || '',
+        duration: nd.duration || '',
+        stipendValue: nd.stipendValue || '',
+        price: nd.price || '',
+        enrollmentUrl: nd.enrollmentUrl || '',
+        curriculum: Array.isArray(nd.curriculum) ? nd.curriculum : [''],
+        instructor: nd.instructor || '',
+        rating: nd.rating || '',
+        reviews: nd.reviews || '',
+        courseDescription: nd.courseDescription || '',
+        courseType: nd.courseType || ''
+      };
+      submitData.append('nestedData', JSON.stringify(nestedDataPayload));
 
       const res = await fetch(`${API_URL}/cards`, {
         method: 'POST',
@@ -256,12 +265,13 @@ const UnifiedAdminDashboard = () => {
       nestedData: {
         videoUrl: card.nestedData?.videoUrl || '',
         duration: card.nestedData?.duration || '',
+        stipendValue: card.nestedData?.stipendValue || '',
         price: card.nestedData?.price || '',
         enrollmentUrl: card.nestedData?.enrollmentUrl || '',
         curriculum: card.nestedData?.curriculum || [''],
         instructor: card.nestedData?.instructor || '',
-        rating: card.nestedData?.rating || 0,
-        reviews: card.nestedData?.reviews || 0,
+        rating: card.nestedData?.rating || '',
+        reviews: card.nestedData?.reviews || '',
         courseDescription: card.nestedData?.courseDescription || ''
       }
     });
@@ -281,23 +291,22 @@ const UnifiedAdminDashboard = () => {
       submitData.append('section', formData.section);
       if (formData.image) submitData.append('image', formData.image);
 
-      // Include full nestedData for Women Corner entries
-      if (['scholarship', 'internship', 'mentorship'].includes(formData.section)) {
-        const nd = formData.nestedData || {};
-        const nestedDataPayload = {
-          videoUrl: nd.videoUrl || '',
-          duration: nd.duration || '',
-          price: nd.price || '',
-          enrollmentUrl: nd.enrollmentUrl || '',
-          curriculum: Array.isArray(nd.curriculum) ? nd.curriculum : [''],
-          instructor: nd.instructor || '',
-          rating: Number(nd.rating || 0),
-          reviews: Number(nd.reviews || 0),
-          courseDescription: nd.courseDescription || '',
-          
-        };
-        submitData.append('nestedData', JSON.stringify(nestedDataPayload));
-      }
+      // Include nestedData for all sections that support it
+      const nd = formData.nestedData || {};
+      const nestedDataPayload = {
+        videoUrl: nd.videoUrl || '',
+        duration: nd.duration || '',
+        stipendValue: nd.stipendValue || '',
+        price: nd.price || '',
+        enrollmentUrl: nd.enrollmentUrl || '',
+        curriculum: Array.isArray(nd.curriculum) ? nd.curriculum : [''],
+        instructor: nd.instructor || '',
+        rating: nd.rating || '',
+        reviews: nd.reviews || '',
+        courseDescription: nd.courseDescription || '',
+        courseType: nd.courseType || ''
+      };
+      submitData.append('nestedData', JSON.stringify(nestedDataPayload));
 
       const res = await fetch(`${API_URL}/cards/${editingCard._id}`, {
         method: 'PUT',
@@ -348,16 +357,16 @@ const UnifiedAdminDashboard = () => {
   // Category card handlers
   const handleCreateCategory = async (e) => {
     e.preventDefault();
-    if (!formData.title || !formData.description) return;
+    if (!categoryFormData.title || !categoryFormData.description) return;
     
     setLoading(true);
     setMessage('');
     try {
       const submitData = new FormData();
-      submitData.append('title', formData.title);
-      submitData.append('description', formData.description);
+      submitData.append('title', categoryFormData.title);
+      submitData.append('description', categoryFormData.description);
       submitData.append('section', 'category'); // Set a default section for category cards
-      if (formData.image) submitData.append('image', formData.image);
+      if (categoryFormData.image) submitData.append('image', categoryFormData.image);
 
       const res = await fetch(`${API_URL}/cards`, {
         method: 'POST',
@@ -371,7 +380,11 @@ const UnifiedAdminDashboard = () => {
       }
       
       setMessage('Category card created successfully!');
-      resetForm();
+      setCategoryFormData({
+        title: '',
+        description: '',
+        image: null
+      });
       setIsCreatingCategory(false);
       fetchCategoryCards();
     } catch (err) {
@@ -406,6 +419,64 @@ const UnifiedAdminDashboard = () => {
       setMessage('Error deleting category card');
     }
     setLoading(false);
+  };
+
+  const handleEditCategory = (category) => {
+    setEditingCategory(category);
+    setCategoryFormData({
+      title: category.title,
+      description: category.description,
+      image: null
+    });
+    setIsCreatingCategory(false);
+  };
+
+  const handleUpdateCategory = async (e) => {
+    e.preventDefault();
+    if (!editingCategory || !categoryFormData.title || !categoryFormData.description) return;
+    
+    setLoading(true);
+    setMessage('');
+    try {
+      const submitData = new FormData();
+      submitData.append('title', categoryFormData.title);
+      submitData.append('description', categoryFormData.description);
+      submitData.append('section', 'category');
+      if (categoryFormData.image) submitData.append('image', categoryFormData.image);
+
+      const res = await fetch(`${API_URL}/cards/${editingCategory._id}`, {
+        method: 'PUT',
+        body: submitData,
+        credentials: 'include'
+      });
+      
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP ${res.status}: Failed to update category card`);
+      }
+      
+      setMessage('Category card updated successfully!');
+      setEditingCategory(null);
+      setCategoryFormData({
+        title: '',
+        description: '',
+        image: null
+      });
+      fetchCategoryCards();
+    } catch (err) {
+      console.error('Category update error:', err);
+      setMessage(`Error updating category card: ${err.message}`);
+    }
+    setLoading(false);
+  };
+
+  const cancelCategoryEdit = () => {
+    setEditingCategory(null);
+    setCategoryFormData({
+      title: '',
+      description: '',
+      image: null
+    });
   };
 
   const handleUpdateCourse = async (courseData) => {
@@ -545,12 +616,13 @@ const UnifiedAdminDashboard = () => {
       nestedData: {
         videoUrl: '',
         duration: '',
+        stipendValue: '',
         price: '',
         enrollmentUrl: '',
         curriculum: [''],
         instructor: '',
-        rating: 0,
-        reviews: 0,
+        rating: '',
+        reviews: '',
         courseDescription: ''
       }
     });
@@ -595,8 +667,12 @@ const UnifiedAdminDashboard = () => {
             <button
               onClick={() => {
                 setIsCreatingCategory(true);
-                setIsCreatingContent(false);
-                resetForm();
+                setEditingCategory(null);
+                setCategoryFormData({
+                  title: '',
+                  description: '',
+                  image: null
+                });
               }}
               className="bg-[#c1b2e5] text-[#17141f] px-4 py-2 rounded-lg font-medium hover:bg-[#a393c8] transition-colors"
             >
@@ -604,18 +680,20 @@ const UnifiedAdminDashboard = () => {
             </button>
           </div>
 
-          {/* Category Creation Form */}
-          {isCreatingCategory && (
+          {/* Category Creation/Edit Form */}
+          {(isCreatingCategory || editingCategory) && (
             <div className="mb-6 p-4 bg-[#2b3240] rounded-lg">
-              <h3 className="text-white font-semibold mb-3">Create New Category Card</h3>
-              <form onSubmit={handleCreateCategory} className="space-y-3">
+              <h3 className="text-white font-semibold mb-3">
+                {editingCategory ? 'Edit Category Card' : 'Create New Category Card'}
+              </h3>
+              <form onSubmit={editingCategory ? handleUpdateCategory : handleCreateCategory} className="space-y-3">
                 <div>
                   <label className="block text-white font-medium mb-1">Category Title</label>
                   <input
                     type="text"
                     className="w-full bg-[#1a1f2a] text-white border border-[#3a4250] rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-[#c1b2e5]"
-                    value={formData.title}
-                    onChange={e => setFormData({...formData, title: e.target.value})}
+                    value={categoryFormData.title}
+                    onChange={e => setCategoryFormData({...categoryFormData, title: e.target.value})}
                     placeholder="e.g., Open Source Programs, Extracurricular Activities"
                     required
                   />
@@ -624,8 +702,8 @@ const UnifiedAdminDashboard = () => {
                   <label className="block text-white font-medium mb-1">Category Description</label>
                   <textarea
                     className="w-full bg-[#1a1f2a] text-white border border-[#3a4250] rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-[#c1b2e5]"
-                    value={formData.description}
-                    onChange={e => setFormData({...formData, description: e.target.value})}
+                    value={categoryFormData.description}
+                    onChange={e => setCategoryFormData({...categoryFormData, description: e.target.value})}
                     rows="2"
                     placeholder="Describe what this category contains..."
                     required
@@ -637,19 +715,24 @@ const UnifiedAdminDashboard = () => {
                     type="file"
                     accept="image/*"
                     className="w-full bg-[#1a1f2a] text-white border border-[#3a4250] rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-[#c1b2e5]"
-                    onChange={e => setFormData({...formData, image: e.target.files[0]})}
+                    onChange={e => setCategoryFormData({...categoryFormData, image: e.target.files[0]})}
                   />
+                  {editingCategory && editingCategory.image && !categoryFormData.image && (
+                    <p className="text-sm text-[#9da8be] mt-1">
+                      Current image: {editingCategory.image}
+                    </p>
+                  )}
                 </div>
                 <div className="flex gap-2">
                   <button
                     type="submit"
                     className="bg-[#c1b2e5] text-[#17141f] px-4 py-2 rounded-lg font-medium hover:bg-[#a393c8] transition-colors"
                   >
-                    Create Category
+                    {editingCategory ? 'Update Category' : 'Create Category'}
                   </button>
                   <button
                     type="button"
-                    onClick={() => setIsCreatingCategory(false)}
+                    onClick={editingCategory ? cancelCategoryEdit : () => setIsCreatingCategory(false)}
                     className="bg-gray-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors"
                   >
                     Cancel
@@ -684,7 +767,16 @@ const UnifiedAdminDashboard = () => {
                 }`}>
                   {card.description}
                 </p>
-                <div className="flex justify-end items-center">
+                <div className="flex justify-between items-center">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEditCategory(card);
+                    }}
+                    className="text-[#c1b2e5] hover:text-white transition-colors"
+                  >
+                    Edit
+                  </button>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -843,10 +935,23 @@ const UnifiedAdminDashboard = () => {
                   </div>
                   
                   <div>
-                    <label className="block text-white font-medium mb-2">Price</label>
+                    <label className="block text-white font-medium mb-2">Stipend/Value</label>
                     <input
                       type="text"
-                      placeholder="e.g., $99 or Free"
+                      placeholder="e.g., ₹10,000/month or Free"
+                      className="w-full bg-[#2b3240] text-white border border-[#3a4250] rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#c1b2e5]"
+                      value={formData.nestedData?.stipendValue || ''}
+                      onChange={e => setFormData({
+                        ...formData,
+                        nestedData: { ...(formData.nestedData || {}), stipendValue: e.target.value }
+                      })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-white font-medium mb-2">Price (INR)</label>
+                    <input
+                      type="text"
+                      placeholder="e.g., ₹99 or Free"
                       className="w-full bg-[#2b3240] text-white border border-[#3a4250] rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#c1b2e5]"
                       value={formData.nestedData?.price || ''}
                       onChange={e => setFormData({
@@ -882,14 +987,12 @@ const UnifiedAdminDashboard = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-white font-medium mb-2">Rating (0-5)</label>
+                    <label className="block text-white font-medium mb-2">Rating (0-5 or N/A)</label>
                     <input
-                      type="number"
-                      min="0"
-                      max="5"
-                      step="0.1"
+                      type="text"
+                      placeholder="e.g., 4.5 or N/A"
                       className="w-full bg-[#2b3240] text-white border border-[#3a4250] rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#c1b2e5]"
-                      value={formData.nestedData?.rating ?? 0}
+                      value={formData.nestedData?.rating || ''}
                       onChange={e => setFormData({
                         ...formData,
                         nestedData: { ...(formData.nestedData || {}), rating: e.target.value }
@@ -897,12 +1000,12 @@ const UnifiedAdminDashboard = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-white font-medium mb-2">Reviews</label>
+                    <label className="block text-white font-medium mb-2">Reviews (Number or N/A)</label>
                     <input
-                      type="number"
-                      min="0"
+                      type="text"
+                      placeholder="e.g., 150 or N/A"
                       className="w-full bg-[#2b3240] text-white border border-[#3a4250] rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#c1b2e5]"
-                      value={formData.nestedData?.reviews ?? 0}
+                      value={formData.nestedData?.reviews || ''}
                       onChange={e => setFormData({
                         ...formData,
                         nestedData: { ...(formData.nestedData || {}), reviews: e.target.value }
@@ -1179,7 +1282,7 @@ const UnifiedAdminDashboard = () => {
               </div>
               <div className="flex items-start gap-3">
                 <span className="text-[#c1b2e5] font-bold">2.</span>
-                <p><strong>Women Corner:</strong> Manage scholarships, internships, and mentorship content specifically for women.</p>
+                <p><strong>Women Corner:</strong> Manage scholarships, internships, mentorship, and competitions content specifically for women.</p>
               </div>
               <div className="flex items-start gap-3">
                 <span className="text-[#c1b2e5] font-bold">3.</span>

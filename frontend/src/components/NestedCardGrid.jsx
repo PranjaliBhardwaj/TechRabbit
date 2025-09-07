@@ -22,7 +22,8 @@ const NestedCardGrid = ({
     try {
       const response = await fetch(`${API_URL}/cards/${parentCardId}/nested`, {
         method: 'POST',
-        body: formData
+        body: formData,
+        credentials: 'include'
       });
       
       if (response.ok) {

@@ -10,7 +10,7 @@ const router = express.Router();
 const cardSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
-  section: { type: String, enum: ['scholarship', 'internship', 'mentorship', 'course', 'opensource', 'extracurricular', 'category'], required: true },
+  section: { type: String, enum: ['scholarship', 'internship', 'mentorship', 'course', 'opensource', 'extracurricular', 'category', 'competitions'], required: true },
   image: { type: String },
   parentCardId: { type: mongoose.Schema.Types.ObjectId, ref: 'Card' }, // For nested cards
   isNested: { type: Boolean, default: false }, // Flag to identify nested cards
@@ -18,12 +18,13 @@ const cardSchema = new mongoose.Schema({
     videoUrl: String,
     duration: String,
     level: String,
-    price: String,
+    stipendValue: String, // Changed from price to stipend/value
+    price: String, // New field for price in Indian rupees
     enrollmentUrl: String,
     curriculum: [String],
     instructor: String,
-    rating: Number,
-    reviews: Number,
+    rating: String, // Changed to String to support "N/A"
+    reviews: String, // Changed to String to support "N/A"
     courseDescription: String,
     courseType: String
   }
@@ -83,16 +84,6 @@ router.post('/', authenticateAdmin, upload.single('image'), async (req, res) => 
   try {
     const { title, description, section, nestedData } = req.body;
     
-    // Debug: Log the received data
-    console.log('Backend received data:', {
-      title,
-      description,
-      section,
-      nestedData,
-      hasFile: !!req.file
-    });
-    console.log('Raw body:', req.body);
-    console.log('All form fields:', Object.keys(req.body));
     
     if (!title || !description || !section) {
       return res.status(400).json({ error: 'Missing required fields: title, description, section' });
@@ -109,7 +100,6 @@ router.post('/', authenticateAdmin, upload.single('image'), async (req, res) => 
     if (nestedData) {
       try {
         const parsedNestedData = JSON.parse(nestedData);
-        console.log('Parsed nestedData:', parsedNestedData);
         cardData.nestedData = parsedNestedData;
       } catch (parseError) {
         console.error('Error parsing nestedData:', parseError);
@@ -117,11 +107,8 @@ router.post('/', authenticateAdmin, upload.single('image'), async (req, res) => 
       }
     }
     
-    console.log('Final cardData to save:', cardData);
-    
     const card = new Card(cardData);
     await card.save();
-    console.log('Saved card:', card);
     res.status(201).json(card);
   } catch (err) {
     if (err.name === 'ValidationError') {
@@ -221,15 +208,22 @@ router.post('/:id/nested', authenticateAdmin, upload.single('image'), async (req
     const { id } = req.params;
     const { title, description, nestedData } = req.body;
     
+    console.log('Creating nested card for parent:', id);
+    console.log('Received data:', { title, description, nestedData });
+    
     if (!title || !description) {
+      console.log('Missing required fields:', { title, description });
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
     // Verify parent card exists
     const parentCard = await Card.findById(id);
     if (!parentCard) {
+      console.log('Parent card not found:', id);
       return res.status(404).json({ error: 'Parent card not found' });
     }
+    
+    console.log('Parent card found:', parentCard.title, parentCard.section);
 
     const nestedCard = new Card({
       title,
@@ -241,9 +235,13 @@ router.post('/:id/nested', authenticateAdmin, upload.single('image'), async (req
       nestedData: nestedData ? JSON.parse(nestedData) : {}
     });
 
+    console.log('About to save nested card:', nestedCard);
     await nestedCard.save();
+    console.log('Nested card saved successfully');
     res.status(201).json(nestedCard);
   } catch (err) {
+    console.error('Error creating nested card:', err);
+    console.error('Error details:', err.message);
     res.status(500).json({ error: 'Failed to create nested card' });
   }
 });

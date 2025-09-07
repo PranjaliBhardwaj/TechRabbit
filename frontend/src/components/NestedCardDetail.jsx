@@ -176,7 +176,7 @@ const NestedCardDetail = () => {
                    <img
                      src={nestedCard.image ? `${API_URL}/uploads/${nestedCard.image}` : "/default_bunny.jpg"}
                      alt={nestedCard.title}
-                     className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-105"
+                     className="w-full h-64 object-cover"
                    />
                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
                    
@@ -187,14 +187,6 @@ const NestedCardDetail = () => {
                      </div>
                    )}
                    
-                   {/* Play Button Overlay */}
-                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                     <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                       <svg className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-                         <path d="M8 5v14l11-7z"/>
-                       </svg>
-                     </div>
-                   </div>
                  </div>
                </div>
              </div>
@@ -237,28 +229,37 @@ const NestedCardDetail = () => {
                      </div>
                    )}
                    
-                   {(nestedCard.nestedData?.instructor || nestedCard.instructor) && (
-                     <div className="bg-gradient-to-br from-[#1a1f2a] to-[#2b3240] p-4 rounded-xl border border-[#2b3240]">
-                       <div className="text-[#a393c8] text-sm mb-1">Instructor</div>
-                       <div className="text-white font-semibold">{nestedCard.nestedData?.instructor || nestedCard.instructor}</div>
-                     </div>
-                   )}
-                   
                    {(nestedCard.nestedData?.price || nestedCard.price) && (
                      <div className="bg-gradient-to-br from-[#1a1f2a] to-[#2b3240] p-4 rounded-xl border border-[#2b3240]">
                        <div className="text-[#a393c8] text-sm mb-1">Price</div>
                        <div className="text-[#c1b2e5] font-bold text-lg">
-                         {(nestedCard.nestedData?.price || nestedCard.price) === 'Free' ? 'Free' : `$${nestedCard.nestedData?.price || nestedCard.price}`}
+                         {(nestedCard.nestedData?.price || nestedCard.price) === 'Free' ? 'Free' : `₹${nestedCard.nestedData?.price || nestedCard.price}`}
                        </div>
                      </div>
                    )}
+                   
+                   <div className="bg-gradient-to-br from-[#1a1f2a] to-[#2b3240] p-4 rounded-xl border border-[#2b3240]">
+                     <div className="text-[#a393c8] text-sm mb-1">Stipend/Value</div>
+                     <div className="text-[#c1b2e5] font-bold text-lg">
+                       {(nestedCard.nestedData?.stipendValue || nestedCard.stipendValue) ? 
+                         ((nestedCard.nestedData?.stipendValue || nestedCard.stipendValue) === 'Free' ? 'Free' : `₹${nestedCard.nestedData?.stipendValue || nestedCard.stipendValue}`) : 
+                         'Not specified'
+                       }
+                     </div>
+                   </div>
                    
                    {(nestedCard.nestedData?.rating || nestedCard.rating) && (
                      <div className="bg-gradient-to-br from-[#1a1f2a] to-[#2b3240] p-4 rounded-xl border border-[#2b3240]">
                        <div className="text-[#a393c8] text-sm mb-1">Rating</div>
                        <div className="flex items-center gap-2">
-                         <div className="flex">{renderStars(nestedCard.nestedData?.rating || nestedCard.rating)}</div>
-                         <span className="text-white font-semibold">{(nestedCard.nestedData?.rating || nestedCard.rating)}/5</span>
+                         {(nestedCard.nestedData?.rating || nestedCard.rating) === 'N/A' ? (
+                           <span className="text-white font-semibold">N/A</span>
+                         ) : (
+                           <>
+                             <div className="flex">{renderStars(nestedCard.nestedData?.rating || nestedCard.rating)}</div>
+                             <span className="text-white font-semibold">{(nestedCard.nestedData?.rating || nestedCard.rating)}/5</span>
+                           </>
+                         )}
                        </div>
                      </div>
                    )}

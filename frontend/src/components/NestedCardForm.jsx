@@ -15,12 +15,13 @@ const NestedCardForm = ({
       videoUrl: '',
       duration: '',
       level: 'Beginner',
+      stipendValue: '',
       price: '',
       enrollmentUrl: '',
       curriculum: [''],
       instructor: '',
-      rating: 0,
-      reviews: 0,
+      rating: '',
+      reviews: '',
       courseDescription: '',
       courseType: 'Detailed'
     }
@@ -38,12 +39,13 @@ const NestedCardForm = ({
           videoUrl: editCard.nestedData?.videoUrl || '',
           duration: editCard.nestedData?.duration || '',
           level: editCard.nestedData?.level || 'Beginner',
+          stipendValue: editCard.nestedData?.stipendValue || '',
           price: editCard.nestedData?.price || '',
           enrollmentUrl: editCard.nestedData?.enrollmentUrl || '',
           curriculum: editCard.nestedData?.curriculum || [''],
           instructor: editCard.nestedData?.instructor || '',
-          rating: editCard.nestedData?.rating || 0,
-          reviews: editCard.nestedData?.reviews || 0,
+          rating: editCard.nestedData?.rating || '',
+          reviews: editCard.nestedData?.reviews || '',
           courseDescription: editCard.nestedData?.courseDescription || '',
           courseType: editCard.nestedData?.courseType || 'Detailed'
         }
@@ -274,14 +276,27 @@ const NestedCardForm = ({
 
               <div>
                 <label className="block text-[#9da8be] text-sm font-medium mb-2">
-                  Price
+                  Stipend/Value
+                </label>
+                <input
+                  type="text"
+                  value={formData.nestedData.stipendValue}
+                  onChange={(e) => handleInputChange('nestedData.stipendValue', e.target.value)}
+                  className="w-full px-3 py-2 bg-[#2b3240] border border-[#3a4151] rounded-lg text-white focus:outline-none focus:border-[#c1b2e5]"
+                  placeholder="e.g., ₹10,000/month or Free"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[#9da8be] text-sm font-medium mb-2">
+                  Price (INR)
                 </label>
                 <input
                   type="text"
                   value={formData.nestedData.price}
                   onChange={(e) => handleInputChange('nestedData.price', e.target.value)}
                   className="w-full px-3 py-2 bg-[#2b3240] border border-[#3a4151] rounded-lg text-white focus:outline-none focus:border-[#c1b2e5]"
-                  placeholder="e.g., $99 or Free"
+                  placeholder="e.g., ₹99 or Free"
                 />
               </div>
             </div>
@@ -315,29 +330,27 @@ const NestedCardForm = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-[#9da8be] text-sm font-medium mb-2">
-                  Rating (0-5)
+                  Rating (0-5 or N/A)
                 </label>
                 <input
-                  type="number"
-                  min="0"
-                  max="5"
-                  step="0.1"
-                  value={formData.nestedData.rating || 0}
-                  onChange={(e) => handleNumberChange('nestedData.rating', e.target.value)}
+                  type="text"
+                  value={formData.nestedData.rating || ''}
+                  onChange={(e) => handleInputChange('nestedData.rating', e.target.value)}
                   className="w-full px-3 py-2 bg-[#2b3240] border border-[#3a4151] rounded-lg text-white focus:outline-none focus:border-[#c1b2e5]"
+                  placeholder="e.g., 4.5 or N/A"
                 />
               </div>
 
               <div>
                 <label className="block text-[#9da8be] text-sm font-medium mb-2">
-                  Number of Reviews
+                  Reviews (Number or N/A)
                 </label>
                 <input
-                  type="number"
-                  min="0"
-                  value={formData.nestedData.reviews || 0}
-                  onChange={(e) => handleNumberChange('nestedData.reviews', e.target.value)}
+                  type="text"
+                  value={formData.nestedData.reviews || ''}
+                  onChange={(e) => handleInputChange('nestedData.reviews', e.target.value)}
                   className="w-full px-3 py-2 bg-[#2b3240] border border-[#3a4151] rounded-lg text-white focus:outline-none focus:border-[#c1b2e5]"
+                  placeholder="e.g., 150 or N/A"
                 />
               </div>
             </div>

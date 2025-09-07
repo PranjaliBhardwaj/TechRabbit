@@ -17,6 +17,7 @@ import Chat from "./components/Chat";
 import ProfilePage from "./components/Profile";
 import Login from "./components/Login";
 import Freelancing_Page from "./components/Freelancing_Page";
+import TeamSection from "./components/TeamSection";
 import { SearchProvider } from "./contexts/SearchContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import "./App.css";
@@ -79,10 +80,30 @@ function Landing() {
       if (mid >= heroBottom) {
         sections.forEach((section, i) => {
           const top = section.offsetTop;
-          const bottom = top + section.offsetHeight;
+          const height = section.offsetHeight;
+          const bottom = top + height;
           if (mid >= top && mid < bottom) {
             active = i;
           }
+          // Parallax: compute distance from viewport mid to section center
+          const sectionCenter = top + height / 2;
+          const distance = mid - sectionCenter; // px
+          const ratio = Math.max(-1, Math.min(1, distance / window.innerHeight));
+          const imageOffset = (ratio * -40).toFixed(2); // px
+          const contentOffset = (ratio * 20).toFixed(2); // px
+          section.style.setProperty('--parallaxImage', imageOffset + 'px');
+          section.style.setProperty('--parallaxContent', contentOffset + 'px');
+
+          // Handoff progress within section [0..1]
+          const progress = Math.max(0, Math.min(1, (mid - top) / Math.max(1, height)));
+          const travel = 110; // overshoot for clarity
+          // Downward handoff (current -> next)
+          const currentY = `${progress * travel}%`; // 0% -> 110%
+          const nextY = `${travel - progress * travel}%`; // 110% -> 0%
+          section.style.setProperty('--handoffCurrentY', currentY);
+          section.style.setProperty('--handoffNextY', nextY);
+
+          // Remove unused prev/current-from-prev vars (single stack now)
         });
       } else {
         // still in hero; keep first section colors without triggering jump
@@ -166,8 +187,7 @@ function Landing() {
   return (
     <div className="App">
       {/* Hero Section with brand-aligned gradient and centered CTA */}
-      <div
-        style={{
+      <div className="hero-wrapper" style={{
           height: '100vh',
           width: '100vw',
           display: 'flex',
@@ -176,51 +196,50 @@ function Landing() {
           textAlign: 'center',
           padding: '48px 16px',
           background: 'linear-gradient(135deg, #a393c8 0%, #6b5bd6 40%, #2c2447 100%)',
-          color: '#fff'
-        }}
-      >
-        <div style={{ maxWidth: 960, width: '100%' }}>
+          color: '#fff',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+        {/* decorative gradient blobs */}
+        <span className="hero-decor hero-decor-1 float-animation" />
+        <span className="hero-decor hero-decor-2 float-animation" />
+        
+        <div className="glass-card" style={{ maxWidth: 960, width: '100%' }}>
           <img
             src="/logo.png"
             alt="TechRabbit Logo"
-            style={{ width: 96, height: 96, objectFit: 'contain', margin: '0 auto 16px auto', filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.25))' }}
+            style={{ width: 100, height: 100, objectFit: 'contain', margin: '0 auto 16px auto', filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.25))' }}
           />
-          <h1 style={{ fontSize: 44, fontWeight: 800, margin: '8px 0' }}>Discover Tech Opportunities</h1>
-          <p style={{ fontSize: 22, opacity: 0.98, margin: '0 0 24px 0' }}>
+          <h1 className="gradient-text" style={{ fontSize: 44, fontWeight: 800, margin: '8px 0' }}>Discover Tech Opportunities</h1>
+          <p style={{ fontSize: 20, opacity: 0.95, margin: '0 0 16px 0' }}>
             Explore <span style={{ borderRight: '2px solid #fff', paddingRight: 4 }}>{twText}</span>
           </p>
-          
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 16 }}>
+            <span className="hero-chip">Courses</span>
+            <span className="hero-chip">Internships</span>
+            <span className="hero-chip">Scholarships</span>
+            <span className="hero-chip">Mentorships</span>
+          </div>
+
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
             <button
               onClick={() => navigate('/explore')}
-              style={{
-                background: '#ffffff',
-                color: '#2c2447',
-                border: 'none',
-                borderRadius: 999,
-                padding: '12px 22px',
-                fontWeight: 700,
-                cursor: 'pointer',
-                boxShadow: '0 10px 28px rgba(0,0,0,0.20)'
-              }}
+              className="enhanced-button focus-ring"
             >
               Get Started
             </button>
             <button
               onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
-              style={{
-                background: 'transparent',
-                color: '#fff',
-                border: '1px solid rgba(255,255,255,0.55)',
-                borderRadius: 999,
-                padding: '12px 22px',
-                fontWeight: 700,
-                cursor: 'pointer'
-              }}
+              className="button-ghost focus-ring"
             >
               Learn More
             </button>
           </div>
+        </div>
+
+        {/* scroll indicator */}
+        <div className="scroll-indicator" onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}>
+          <span />
         </div>
       </div>
 
@@ -245,10 +264,12 @@ function Landing() {
             title={section.title}
             description={section.description}
             image={section.image}
+            nextImage={sectionsData[(index + 1) % sectionsData.length].image}
             darkText={index >= 0}
             isInView={sectionsInView.has(index)}
           />
         ))}
+        <TeamSection />
         </div>
       </div>
     </div>

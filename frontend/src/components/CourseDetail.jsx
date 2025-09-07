@@ -218,7 +218,7 @@ const CourseDetail = () => {
                     <div className="bg-[#2b3240] p-4 rounded-lg">
                       <div className="text-[#9da8be] text-sm mb-1">Price</div>
                       <div className="text-white font-semibold text-[#c1b2e5]">
-                        {cardNestedData.price === 'Free' ? 'Free' : `$${cardNestedData.price}`}
+                        {cardNestedData.price === 'Free' ? 'Free' : `₹${cardNestedData.price}`}
                       </div>
                     </div>
                   )}
@@ -227,8 +227,14 @@ const CourseDetail = () => {
                     <div className="bg-[#2b3240] p-4 rounded-lg">
                       <div className="text-[#9da8be] text-sm mb-1">Rating</div>
                       <div className="flex items-center gap-2">
-                        <div className="flex">{renderStars(cardNestedData.rating)}</div>
-                        <span className="text-white font-semibold">{cardNestedData.rating}/5</span>
+                        {cardNestedData.rating === 'N/A' ? (
+                          <span className="text-white font-semibold">N/A</span>
+                        ) : (
+                          <>
+                            <div className="flex">{renderStars(cardNestedData.rating)}</div>
+                            <span className="text-white font-semibold">{cardNestedData.rating}/5</span>
+                          </>
+                        )}
                       </div>
                     </div>
                   )}

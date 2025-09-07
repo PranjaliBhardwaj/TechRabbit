@@ -10,7 +10,8 @@ const API_URL = "http://localhost:5000";
 const sectionLabels = {
   scholarship: "Scholarships",
   internship: "Internships",
-  mentorship: "Mentorship",
+  mentorship: "Mentorships",
+  competitions: "Competitions",
 };
 
 const WomenCornerPage = () => {
@@ -137,6 +138,7 @@ const WomenCornerPage = () => {
                     {section === 'scholarship' && '🎓'}
                     {section === 'internship' && '💼'}
                     {section === 'mentorship' && '🌟'}
+                    {section === 'competitions' && '🏆'}
                   </span>
                 </h2>
                 
@@ -159,7 +161,7 @@ const WomenCornerPage = () => {
                           {/* Image container */}
                           <div className="relative overflow-hidden">
                             <div
-                              className="w-full aspect-square bg-center bg-no-repeat bg-cover transition-transform duration-700 group-hover:scale-110"
+                              className="w-full aspect-square bg-center bg-no-repeat bg-cover"
                               style={{ 
                                 backgroundImage: `url(${item.image ? `${API_URL}/uploads/${item.image}` : 'https://via.placeholder.com/300x300?text=No+Image'})` 
                               }}

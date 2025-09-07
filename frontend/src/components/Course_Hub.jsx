@@ -236,7 +236,7 @@ const CourseHub = () => {
                    {/* Image container */}
                    <div className="relative overflow-hidden">
                      <div
-                       className="w-full aspect-video bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                       className="w-full aspect-video bg-cover bg-center"
                        style={{ 
                          backgroundImage: `url(${course.image ? `${API_URL}/uploads/${course.image}` : 'https://via.placeholder.com/400x225?text=Course+Image'})` 
                        }}
@@ -301,7 +301,7 @@ const CourseHub = () => {
                      {course.nestedData?.price && (
                        <div className="mb-4">
                          <span className="text-blue-400 font-semibold text-lg">
-                           {course.nestedData.price === 'Free' ? 'Free' : `$${course.nestedData.price}`}
+                           {course.nestedData.price === 'Free' ? 'Free' : `₹${course.nestedData.price}`}
                          </span>
                        </div>
                      )}
