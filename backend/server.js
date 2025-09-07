@@ -26,7 +26,7 @@ const PORT = process.env.PORT || 5000;
 const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || 'http://localhost:5173';
 const FRONTEND_ORIGINS = (process.env.FRONTEND_ORIGINS || FRONTEND_ORIGIN)
   .split(',')
-  .map(s => s.trim())
+  .map(s => s.trim().replace(/\/$/, '')) // Remove trailing slash
   .filter(Boolean);
 const ALLOW_VERCEL_WILDCARD = (process.env.ALLOW_VERCEL_WILDCARD || 'false') === 'true';
 
@@ -80,7 +80,7 @@ app.use(session({
   cookie: {
     httpOnly: true,
     sameSite: (process.env.COOKIE_SAMESITE || 'lax'),
-    secure: (process.env.NODE_ENV === 'production')
+    secure: false // Set to false for now to test
   }
 }));
 app.use(express.json());
