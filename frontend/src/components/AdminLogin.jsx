@@ -21,6 +21,8 @@ const AdminLogin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage('');
+    console.log('🔐 AdminLogin: Attempting login with:', { username, API_URL });
+    
     try {
       const res = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
@@ -28,10 +30,22 @@ const AdminLogin = () => {
         credentials: 'include',
         body: JSON.stringify({ username, password })
       });
-      if (!res.ok) throw new Error('Invalid credentials');
+      
+      console.log('🔐 AdminLogin: Response status:', res.status);
+      console.log('🔐 AdminLogin: Response headers:', res.headers);
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('❌ AdminLogin: Login failed:', res.status, errorText);
+        throw new Error(`Login failed: ${res.status}`);
+      }
+      
+      const data = await res.json();
+      console.log('✅ AdminLogin: Login successful:', data);
       navigate('/admin');
     } catch (err) {
-      setMessage('Invalid credentials');
+      console.error('❌ AdminLogin: Error:', err);
+      setMessage(`Login failed: ${err.message}`);
     }
   };
 

@@ -32,18 +32,31 @@ const ALLOW_VERCEL_WILDCARD = (process.env.ALLOW_VERCEL_WILDCARD || 'false') ===
 
 const corsOptions = {
   origin: (origin, callback) => {
+    console.log('🌐 CORS: Checking origin:', origin);
+    console.log('🌐 CORS: Allowed origins:', FRONTEND_ORIGINS);
+    
     // Allow same-origin or non-browser requests (no Origin header)
-    if (!origin) return callback(null, true);
+    if (!origin) {
+      console.log('🌐 CORS: No origin, allowing');
+      return callback(null, true);
+    }
 
-    if (FRONTEND_ORIGINS.includes(origin)) return callback(null, true);
+    if (FRONTEND_ORIGINS.includes(origin)) {
+      console.log('🌐 CORS: Origin allowed');
+      return callback(null, true);
+    }
 
     if (ALLOW_VERCEL_WILDCARD) {
       try {
         const hostname = new URL(origin).hostname;
-        if (/\.vercel\.app$/.test(hostname)) return callback(null, true);
+        if (/\.vercel\.app$/.test(hostname)) {
+          console.log('🌐 CORS: Vercel origin allowed');
+          return callback(null, true);
+        }
       } catch {}
     }
 
+    console.log('🌐 CORS: Origin blocked:', origin);
     return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
