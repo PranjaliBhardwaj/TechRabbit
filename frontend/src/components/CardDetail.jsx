@@ -4,7 +4,7 @@ import Header from './Header';
 import ContentGrid from './ContentGrid';
 import NestedCardGrid from './NestedCardGrid';
 
-const API_URL = "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const CardDetail = () => {
   const { id } = useParams();

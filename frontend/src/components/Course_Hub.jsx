@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useSearch } from "../contexts/SearchContext";
 import { filterCardsBySearch } from "../utils/searchUtils";
 
-const API_URL = "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const CourseHub = () => {
   const [courses, setCourses] = useState([]);
