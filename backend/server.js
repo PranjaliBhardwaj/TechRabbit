@@ -10,6 +10,7 @@ const path = require('path');
 const cardsRouter = require('./cards');
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
+const MongoStore = require('connect-mongo');
 require('dotenv').config();
 console.log('Environment variables loaded:', {
   SMTP_HOST: process.env.SMTP_HOST,
@@ -21,19 +22,65 @@ console.log('Environment variables loaded:', {
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// CORS with credentials for frontend origin
+// CORS with credentials for frontend origin(s)
 const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || 'http://localhost:5173';
-app.use(cors({ origin: FRONTEND_ORIGIN, credentials: true }));
+const FRONTEND_ORIGINS = (process.env.FRONTEND_ORIGINS || FRONTEND_ORIGIN)
+  .split(',')
+  .map(s => s.trim().replace(/\/$/, '')) // Remove trailing slash
+  .filter(Boolean);
+const ALLOW_VERCEL_WILDCARD = (process.env.ALLOW_VERCEL_WILDCARD || 'false') === 'true';
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    console.log('🌐 CORS: Checking origin:', origin);
+    console.log('🌐 CORS: Allowed origins:', FRONTEND_ORIGINS);
+    
+    // Allow same-origin or non-browser requests (no Origin header)
+    if (!origin) {
+      console.log('🌐 CORS: No origin, allowing');
+      return callback(null, true);
+    }
+
+    if (FRONTEND_ORIGINS.includes(origin)) {
+      console.log('🌐 CORS: Origin allowed');
+      return callback(null, true);
+    }
+
+    if (ALLOW_VERCEL_WILDCARD) {
+      try {
+        const hostname = new URL(origin).hostname;
+        if (/\.vercel\.app$/.test(hostname)) {
+          console.log('🌐 CORS: Vercel origin allowed');
+          return callback(null, true);
+        }
+      } catch {}
+    }
+
+    console.log('🌐 CORS: Origin blocked:', origin);
+    return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
 app.use(cookieParser());
+app.set('trust proxy', 1);
 app.use(session({
   name: 'trsid',
   secret: process.env.SESSION_SECRET || 'change-this-secret',
   resave: false,
   saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGO_URI,
+    collectionName: 'sessions',
+    ttl: 14 * 24 * 60 * 60
+  }),
   cookie: {
     httpOnly: true,
-    sameSite: 'lax',
-    secure: (process.env.NODE_ENV === 'production')
+    sameSite: 'none',
+    secure: true
   }
 }));
 app.use(express.json());
@@ -52,7 +99,11 @@ app.use('/cards', cardsRouter);
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/techrabbit';
 console.log('Attempting to connect to MongoDB at:', MONGO_URI);
 
-mongoose.connect(MONGO_URI)
+mongoose.connect(MONGO_URI, {
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+  maxPoolSize: 10
+})
 .then(() => {
   console.log('✅ MongoDB connected successfully!');
   console.log('Database:', mongoose.connection.name);

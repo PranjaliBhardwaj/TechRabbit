@@ -36,7 +36,7 @@ const ProfilePage = () => {
   const saveProfile = async () => {
     setSaving(true); setError(''); setSuccess('');
     try {
-      const res = await fetch('http://localhost:5000/user/me', {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/user/me`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -87,7 +87,7 @@ const ProfilePage = () => {
                         try {
                           const fd = new FormData();
                           fd.append('avatar', file);
-                          const res = await fetch('http://localhost:5000/user/me/avatar', { method: 'POST', credentials: 'include', body: fd });
+                          const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/user/me/avatar`, { method: 'POST', credentials: 'include', body: fd });
                           if (!res.ok) {
                             let msg = 'Avatar upload failed';
                             try { const d = await res.json(); msg = d?.error || msg; } catch {}
