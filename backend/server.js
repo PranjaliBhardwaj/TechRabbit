@@ -80,8 +80,7 @@ app.use(session({
   cookie: {
     httpOnly: true,
     sameSite: 'none',
-    secure: true,
-    domain: process.env.COOKIE_DOMAIN
+    secure: true
   }
 }));
 app.use(express.json());
