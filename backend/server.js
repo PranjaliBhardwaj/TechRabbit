@@ -79,8 +79,9 @@ app.use(session({
   }),
   cookie: {
     httpOnly: true,
-    sameSite: (process.env.COOKIE_SAMESITE || 'lax'),
-    secure: false // Set to false for now to test
+    sameSite: 'none',
+    secure: true,
+    domain: process.env.COOKIE_DOMAIN
   }
 }));
 app.use(express.json());

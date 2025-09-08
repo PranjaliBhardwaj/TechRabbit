@@ -42,7 +42,9 @@ const AdminLogin = () => {
       
       const data = await res.json();
       console.log('✅ AdminLogin: Login successful:', data);
+      console.log('🔄 AdminLogin: Attempting to navigate to /admin');
       navigate('/admin');
+      console.log('🔄 AdminLogin: Navigate called');
     } catch (err) {
       console.error('❌ AdminLogin: Error:', err);
       setMessage(`Login failed: ${err.message}`);
